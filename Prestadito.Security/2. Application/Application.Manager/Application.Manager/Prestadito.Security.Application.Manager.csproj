@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\3. Domain\Domain.MainModule\Domain.MainModule\Prestadito.Security.Domain.MainModule.csproj" />
+    <ProjectReference Include="..\..\..\4. Infrastructure\Infrastructure.MainModule\Infrastructure.MainModule\Prestadito.Security.Infrastructure.MainModule.csproj" />
+    <ProjectReference Include="..\..\Application.Dto\Application.Dto\Prestadito.Security.Application.Dto.csproj" />
+    <ProjectReference Include="..\..\Application.Services\Application.Services\Prestadito.Security.Application.Services.csproj" />
+  </ItemGroup>
+
+</Project>
