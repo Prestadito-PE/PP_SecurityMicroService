@@ -1,0 +1,75 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Application", "2. Application", "{E1B55888-3515-4BC1-AA13-28EC8A62CD38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Domain", "3. Domain", "{7C72DCD8-08B3-4F6D-89AE-72B641294DE3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4. Infrastructure", "4. Infrastructure", "{33700956-4F50-42CE-9B11-5395B39DE383}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Application.Dto", "2. Application\Application.Dto\Application.Dto\Prestadito.Security.Application.Dto.csproj", "{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Application.Manager", "2. Application\Application.Manager\Application.Manager\Prestadito.Security.Application.Manager.csproj", "{FA36E143-21F6-4D03-8CBD-9DE2671F540F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Domain.MainModule", "3. Domain\Domain.MainModule\Domain.MainModule\Prestadito.Security.Domain.MainModule.csproj", "{212E0749-0A44-420D-A015-9271B2C28BFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Infrastructure.Data", "4. Infrastructure\Infrastructure.Data\Infrastructure.Data\Prestadito.Security.Infrastructure.Data.csproj", "{92A10A13-A43D-4C42-841D-ADFEE70D4BD9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Infrastructure.MainModule", "4. Infrastructure\Infrastructure.MainModule\Infrastructure.MainModule\Prestadito.Security.Infrastructure.MainModule.csproj", "{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.Application.Services", "2. Application\Application.Services\Application.Services\Prestadito.Security.Application.Services.csproj", "{0A1E26AF-705A-4211-A9AF-656F0A1554D8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prestadito.Security.API", "Prestadito.Security.API\Prestadito.Security.API.csproj", "{6E7C1090-0988-4693-91B1-12A27D5D6F8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA36E143-21F6-4D03-8CBD-9DE2671F540F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA36E143-21F6-4D03-8CBD-9DE2671F540F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA36E143-21F6-4D03-8CBD-9DE2671F540F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA36E143-21F6-4D03-8CBD-9DE2671F540F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{212E0749-0A44-420D-A015-9271B2C28BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{212E0749-0A44-420D-A015-9271B2C28BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{212E0749-0A44-420D-A015-9271B2C28BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{212E0749-0A44-420D-A015-9271B2C28BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92A10A13-A43D-4C42-841D-ADFEE70D4BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92A10A13-A43D-4C42-841D-ADFEE70D4BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92A10A13-A43D-4C42-841D-ADFEE70D4BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92A10A13-A43D-4C42-841D-ADFEE70D4BD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A1E26AF-705A-4211-A9AF-656F0A1554D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A1E26AF-705A-4211-A9AF-656F0A1554D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A1E26AF-705A-4211-A9AF-656F0A1554D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A1E26AF-705A-4211-A9AF-656F0A1554D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E7C1090-0988-4693-91B1-12A27D5D6F8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E7C1090-0988-4693-91B1-12A27D5D6F8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E7C1090-0988-4693-91B1-12A27D5D6F8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E7C1090-0988-4693-91B1-12A27D5D6F8B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F44D3CA2-E76F-44F5-AA5F-EF26C7CD506C} = {E1B55888-3515-4BC1-AA13-28EC8A62CD38}
+		{FA36E143-21F6-4D03-8CBD-9DE2671F540F} = {E1B55888-3515-4BC1-AA13-28EC8A62CD38}
+		{212E0749-0A44-420D-A015-9271B2C28BFA} = {7C72DCD8-08B3-4F6D-89AE-72B641294DE3}
+		{92A10A13-A43D-4C42-841D-ADFEE70D4BD9} = {33700956-4F50-42CE-9B11-5395B39DE383}
+		{2CAF91AF-48BB-4D1A-88DA-0D65A0E6880B} = {33700956-4F50-42CE-9B11-5395B39DE383}
+		{0A1E26AF-705A-4211-A9AF-656F0A1554D8} = {E1B55888-3515-4BC1-AA13-28EC8A62CD38}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5EA01E73-7A4E-40DD-BDDF-7F07CD76D84E}
+	EndGlobalSection
+EndGlobal

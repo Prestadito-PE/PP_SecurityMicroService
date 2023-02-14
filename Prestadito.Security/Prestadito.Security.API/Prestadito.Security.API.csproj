@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\2. Application\Application.Dto\Application.Dto\Prestadito.Security.Application.Dto.csproj" />
+    <ProjectReference Include="..\2. Application\Application.Manager\Application.Manager\Prestadito.Security.Application.Manager.csproj" />
+    <ProjectReference Include="..\4. Infrastructure\Infrastructure.Data\Infrastructure.Data\Prestadito.Security.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\4. Infrastructure\Infrastructure.MainModule\Infrastructure.MainModule\Prestadito.Security.Infrastructure.MainModule.csproj" />
+  </ItemGroup>
+
+</Project>
