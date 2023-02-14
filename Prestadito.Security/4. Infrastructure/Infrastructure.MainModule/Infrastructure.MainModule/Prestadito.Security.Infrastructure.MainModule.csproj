@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\2. Application\Application.Dto\Application.Dto\Prestadito.Security.Application.Dto.csproj" />
-    <ProjectReference Include="..\..\..\2. Application\Application.Services\Application.Services\Prestadito.Security.Application.Services.csproj" />
-    <ProjectReference Include="..\..\..\3. Domain\Domain.MainModule\Domain.MainModule\Prestadito.Security.Domain.MainModule.csproj" />
+    <ProjectReference Include="..\..\Infrastructure.Data\Infrastructure.Data\Prestadito.Security.Infrastructure.Data.csproj" />
   </ItemGroup>
 
 </Project>
