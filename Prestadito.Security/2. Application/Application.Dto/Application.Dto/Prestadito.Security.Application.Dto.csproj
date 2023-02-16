@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\3. Domain\Domain.MainModule\Domain.MainModule\Prestadito.Security.Domain.MainModule.csproj" />
+  </ItemGroup>
+
 </Project>

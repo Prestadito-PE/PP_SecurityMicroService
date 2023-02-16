@@ -8,11 +8,20 @@
         {
             context = _context;
         }
+
         public IUserRepository Users
         {
             get
             {
                 return new UserRepository(context.Database);
+            }
+        }
+
+        public ISessionRepository Sessions
+        {
+            get
+            {
+                return new SessionRepository(context.Database);
             }
         }
     }
