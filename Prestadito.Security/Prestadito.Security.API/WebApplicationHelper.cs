@@ -32,11 +32,18 @@
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy(name: myCors,
-                    policy =>
-                    {
-                        policy.WithOrigins("https://localhost").AllowAnyMethod();
-                    });
+                var urlList = configuration.GetSection("AllowedOrigin").GetChildren().Select(c => c.Value).ToArray();
+                options.AddPolicy(myCors,
+                    builder => builder.WithOrigins(urlList)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+
+                //options.AddPolicy(name: myCors,
+                //    policy =>
+                //    {
+                //        policy.WithOrigins("https://localhost").AllowAnyMethod();
+                //    });
             });
 
             return builder.Build();
