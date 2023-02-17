@@ -3,8 +3,11 @@
     public class UserModel
     {
         public string? Id { get; set; }
-        public string StrUsername { get; set; } = null!;
-        public Rol ObjRol { get; set; } = null!;
+        public string StrDOI { get; set; } = null!;
+        public ParameterEntity ObjRol { get; set; } = null!;
+        public bool BlnRegisterComplete { get; set; }
+        public ParameterEntity ObjStatus { get; set; } = null!;
+        public string StrEmail { get; set; } = null!;
         public bool BlnActive { get; set; }
     }
 }

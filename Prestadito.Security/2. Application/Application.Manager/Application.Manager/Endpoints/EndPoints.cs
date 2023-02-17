@@ -5,7 +5,7 @@
         public static WebApplication UseEndpoints(this WebApplication app)
         {
             app.UseHealthEndpoints();
-            app.UseSecurityEndpoints();
+            app.UseUserEndpoints();
             return app;
         }
     }

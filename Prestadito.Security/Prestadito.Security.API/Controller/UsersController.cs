@@ -10,44 +10,48 @@
 
         public async ValueTask<ResponseModel<UserModel>> CreateUser(CreateUserDTO dto)
         {
-            if (dto is null)
+            Expression<Func<UserEntity, bool>> filter = f => f.StrDOI == dto.StrDOI;
+            var userExist = await userRepository.GetUsersAsync(filter);
+            if (userExist is not null && userExist.Count > 0)
             {
-                return ResponseModel<UserModel>.GetResponse("Request body is null");
+                return ResponseModel<UserModel>.GetResponse("DOI is already exist");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.RolCode))
-            {
-                return ResponseModel<UserModel>.GetResponse("Request body is not valid");
-            }
-
-            var rol = MockRol.GetRolByCode(dto.RolCode);
+            var rol = Mocks.GetRolByCode(dto.StrRolCode);
             if (rol is null)
             {
                 return ResponseModel<UserModel>.GetResponse("Rol not exist");
             }
 
-            var entity = new User
+            var userStatus = Mocks.GetUserStatus("0");
+            if (userStatus is null)
             {
-                StrUsername = dto.Username,
-                StrPassword = dto.Password,
+                return ResponseModel<UserModel>.GetResponse("UserStatus not exist");
+            }
+
+            var entity = new UserEntity
+            {
+                StrDOI = dto.StrDOI,
+                StrPasswordHash = Hash256.Encrypt(dto.StrPassword),
                 ObjRol = rol,
-                StrCreateUser = "",
+                BlnRegisterComplete = false,
+                ObjStatus = userStatus,
                 DteCreatedAt = DateTime.UtcNow,
                 BlnActive = true
             };
 
-            var newEntity = await userRepository.InsertOneAsync(entity);
-            if (newEntity is null)
+            var newUser = await userRepository.InsertOneAsync(entity);
+            if (newUser is null)
             {
                 return ResponseModel<UserModel>.GetResponse("Entity not created");
             }
 
             var userModelItem = new UserModel
             {
-                Id = newEntity.Id,
-                StrUsername = newEntity.StrUsername,
+                Id = newUser.Id,
+                StrDOI = newUser.StrDOI,
                 ObjRol = rol,
-                BlnActive = newEntity.BlnActive
+                BlnActive = newUser.BlnActive
             };
             return ResponseModel<UserModel>.GetResponse(userModelItem);
         }
@@ -59,8 +63,11 @@
             var userModelItems = entities.Select(u => new UserModel
             {
                 Id = u.Id,
-                StrUsername = u.StrUsername,
+                StrDOI = u.StrDOI,
                 ObjRol = u.ObjRol,
+                BlnRegisterComplete = u.BlnRegisterComplete,
+                StrEmail = u.StrEmail,
+                ObjStatus = u.ObjStatus,
                 BlnActive = u.BlnActive
             }).ToList();
             return ResponseModel<UserModel>.GetResponse(userModelItems);
@@ -68,16 +75,17 @@
 
         public async ValueTask<ResponseModel<UserModel>> GetActiveUsers()
         {
-            Expression<Func<User, bool>> filter = f => f.BlnActive;
-
+            Expression<Func<UserEntity, bool>> filter = f => f.BlnActive;
             var entities = await userRepository.GetUsersAsync(filter);
 
             var userModelItems = entities.Select(u => new UserModel
             {
                 Id = u.Id,
-                StrUsername = u.StrUsername,
+                StrDOI = u.StrDOI,
                 ObjRol = u.ObjRol,
-                BlnActive = u.BlnActive
+                BlnRegisterComplete = u.BlnRegisterComplete,
+                StrEmail = u.StrEmail,
+                ObjStatus = u.ObjStatus
             }).ToList();
             return ResponseModel<UserModel>.GetResponse(userModelItems);
         }
@@ -98,9 +106,11 @@
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
+                StrDOI = entity.StrDOI,
                 ObjRol = entity.ObjRol,
-                BlnActive = entity.BlnActive
+                BlnRegisterComplete = entity.BlnRegisterComplete,
+                StrEmail = entity.StrEmail,
+                ObjStatus = entity.ObjStatus
             };
             return ResponseModel<UserModel>.GetResponse(userModelItem);
         }
@@ -112,7 +122,7 @@
                 return ResponseModel<UserModel>.GetResponse("Request body is null");
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Id) || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            if (string.IsNullOrWhiteSpace(dto.Id) || string.IsNullOrWhiteSpace(dto.StrDOI) || string.IsNullOrWhiteSpace(dto.StrPassword))
             {
                 return ResponseModel<UserModel>.GetResponse("Request body is not valid");
             }
@@ -123,14 +133,22 @@
                 return ResponseModel<UserModel>.GetResponse("User not exist");
             }
 
-            var rol = MockRol.GetRolByCode(dto.RolCode);
+            var rol = Mocks.GetRolByCode(dto.StrRolCode);
             if (rol is null)
             {
                 return ResponseModel<UserModel>.GetResponse("Rol not exist");
             }
 
-            entity.StrUsername = dto.Username;
-            entity.StrPassword = dto.Password;
+            var userStatus = Mocks.GetUserStatus("0");
+            if (userStatus is null)
+            {
+                return ResponseModel<UserModel>.GetResponse("UserStatus not exist");
+            }
+
+            entity.StrDOI = dto.StrDOI;
+            entity.StrPasswordHash = Hash256.Encrypt(dto.StrPassword);
+            entity.BlnRegisterComplete = true;
+            entity.ObjStatus = userStatus;
             entity.ObjRol = rol;
 
             var isUserUpdated = await userRepository.UpdateOneAsync(entity);
@@ -143,8 +161,8 @@
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
-                ObjRol = entity.ObjRol,
+                StrDOI = entity.StrDOI,
+                ObjRol = rol,
                 BlnActive = entity.BlnActive
             };
             return ResponseModel<UserModel>.GetResponse(userModelItem);
@@ -169,7 +187,7 @@
             }
 
             entity.BlnActive = false;
-            Expression<Func<User, bool>> filter = f => f.Id == dto.Id;
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == dto.Id;
 
             var isUserUpdated = await userRepository.DeleteOneAsync(filter);
             if (!isUserUpdated)
@@ -180,7 +198,7 @@
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
+                StrDOI = entity.StrDOI,
                 ObjRol = entity.ObjRol,
                 BlnActive = entity.BlnActive
             };
@@ -201,7 +219,7 @@
             }
 
             entity.BlnActive = false;
-            Expression<Func<User, bool>> filter = f => f.Id == id;
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == id;
 
             var isUserUpdated = await userRepository.DeleteOneLogicAsync(filter, entity);
             if (!isUserUpdated)
@@ -212,7 +230,7 @@
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
+                StrDOI = entity.StrDOI,
                 ObjRol = entity.ObjRol,
                 BlnActive = entity.BlnActive
             };

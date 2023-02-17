@@ -3,5 +3,6 @@
     public interface IDataService
     {
         public IUserRepository Users { get; }
+        public ISessionRepository Sessions { get; }
     }
 }

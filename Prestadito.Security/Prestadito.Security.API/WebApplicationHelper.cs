@@ -1,6 +1,4 @@
-﻿using Prestadito.Security.API.Controller;
-
-namespace Prestadito.Security.API
+﻿namespace Prestadito.Security.API
 {
     public static class WebApplicationHelper
     {
@@ -8,18 +6,16 @@ namespace Prestadito.Security.API
 
         public static WebApplication CreateWebApplication(this WebApplicationBuilder builder)
         {
-
             var provider = builder.Services.BuildServiceProvider();
 
             var configuration = provider.GetRequiredService<IConfiguration>();
 
-            builder.Services.AddDbContexts(configuration);
-            builder.Services.AddSingleton<ISecurityDBSettings>(sp => sp.GetRequiredService<IOptions<SecurityDBSettings>>().Value);
-
-            builder.Services.AddSingleton<MongoContext>();
+            builder.Services.AddMongoDbContext(configuration);
 
             builder.Services.AddScoped<IDataService, DataService>();
             builder.Services.AddScoped<IUsersController, UsersController>();
+
+            builder.Services.AddValidators();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
