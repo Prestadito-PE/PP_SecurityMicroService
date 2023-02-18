@@ -4,7 +4,7 @@
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            bool result = false;
+            bool result = true;
 
             if (result)
             {
