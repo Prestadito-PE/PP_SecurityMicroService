@@ -4,7 +4,7 @@
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
+        public string Id { get; set; } = null!;
 
         [BsonElement("blnActive")]
         public bool BlnActive { get; set; }

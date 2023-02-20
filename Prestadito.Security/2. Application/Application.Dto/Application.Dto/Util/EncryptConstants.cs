@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Prestadito.Security.Application.Dto.Util
+﻿namespace Prestadito.Security.Application.Dto.Util
 {
     public class EncryptConstants
     {

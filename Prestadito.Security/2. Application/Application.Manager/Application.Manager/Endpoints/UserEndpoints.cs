@@ -1,23 +1,19 @@
-﻿using Prestadito.Security.Application.Dto.Login;
-
-namespace Prestadito.Security.Application.Manager.Endpoints
+﻿namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class UserEndpoints
     {
-        private static string myCors = "myCors";
-        readonly static string path = "/api/security";
-        public static WebApplication UseUserEndpoints(this WebApplication app)
+        readonly static string collection = "users";
+        public static WebApplication UseUserEndpoints(this WebApplication app, string cors, string basePath)
         {
-            string complementPath = "/users";
+            string path = string.Format("{0}/{1}", basePath, collection);
 
-            app.MapPost(path + complementPath + "UserAuthentication",
+            app.MapPost(path + "/login",
                 async (LoginDTO dto, IUsersController controller) =>
                 {
-                    var response = await controller.UserAuthentication(dto);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                    return await controller.Login(dto);
+                }).RequireCors(cors);
 
-            app.MapPost(path + complementPath,
+            app.MapPost(path,
                 async (IValidator<CreateUserDTO> validator, CreateUserDTO dto, IUsersController controller) =>
                 {
                     var validationResult = await validator.ValidateAsync(dto);
@@ -25,37 +21,51 @@ namespace Prestadito.Security.Application.Manager.Endpoints
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
-                    var response = await controller.CreateUser(dto);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                    return await controller.CreateUser(dto, string.Format("~/{0}", path));
+                }).RequireCors(cors);
 
-            app.MapGet(path + complementPath,
+            app.MapGet(path + "/all",
                 async (IUsersController controller) =>
                 {
-                    var response = await controller.GetActiveUsers();
-                    return response != null && response.Items != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                    return await controller.GetAllUsers();
+                }).RequireCors(cors);
 
-            app.MapGet(path + complementPath + "/{id}",
+            app.MapGet(path,
+                async (IUsersController controller) =>
+                {
+                    return await controller.GetActiveUsers();
+                }).RequireCors(cors);
+
+            app.MapGet(path + "/{id}",
                 async (string id, IUsersController controller) =>
                 {
-                    var response = await controller.GetUserById(id);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                    return await controller.GetUserById(id);
+                }).RequireCors(cors);
 
-            app.MapPut(path + complementPath,
-                async (UpdateUserDTO dto, IUsersController controller) =>
+            app.MapPut(path,
+                async (IValidator<UpdateUserDTO> validator, UpdateUserDTO dto, IUsersController controller) =>
                 {
-                    var response = await controller.UpdateUser(dto);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                    var validationResult = await validator.ValidateAsync(dto);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+                    return await controller.UpdateUser(dto);
+                }).RequireCors(cors);
 
-            app.MapPut(path + complementPath + "/delete/{id}",
+            app.MapPut(path + "/disable/{id}",
                 async (string id, IUsersController controller) =>
                 {
-                    var response = await controller.DeleteLogicUser(id);
+                    var response = await controller.DisableUser(id);
                     return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                }).RequireCors(cors);
+
+            app.MapDelete(path + "/delete/{id}",
+                async (string id, IUsersController controller) =>
+                {
+                    var response = await controller.DeleteUser(id);
+                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                }).RequireCors(cors);
 
             return app;
         }

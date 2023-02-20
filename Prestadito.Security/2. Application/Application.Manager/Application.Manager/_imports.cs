@@ -2,6 +2,7 @@
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.DependencyInjection;
+global using Prestadito.Security.Application.Dto.Login;
 global using Prestadito.Security.Application.Dto.User;
 global using Prestadito.Security.Application.Manager.Interfaces;
 global using Prestadito.Security.Application.Manager.Models;

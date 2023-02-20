@@ -1,1 +1,2 @@
-﻿global using Prestadito.Security.Domain.MainModule.Entities;
+﻿global using System.Security.Cryptography;
+global using System.Text;

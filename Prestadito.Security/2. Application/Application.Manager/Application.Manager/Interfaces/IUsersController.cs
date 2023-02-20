@@ -1,17 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Prestadito.Security.Application.Dto.Login;
-
-namespace Prestadito.Security.Application.Manager.Interfaces
+﻿namespace Prestadito.Security.Application.Manager.Interfaces
 {
     public interface IUsersController
     {
-        ValueTask<ResponseModel<LoginResponseDTO>> UserAuthentication(LoginDTO dto);
-        ValueTask<ResponseModel<UserModel>> CreateUser(CreateUserDTO dto);
-        ValueTask<ResponseModel<UserModel>> GetAllUsers();
-        ValueTask<ResponseModel<UserModel>> GetActiveUsers();
-        ValueTask<ResponseModel<UserModel>> GetUserById(string id);
-        ValueTask<ResponseModel<UserModel>> UpdateUser(UpdateUserDTO dto);
-        ValueTask<ResponseModel<UserModel>> DeleteUser(DeleteUserDTO dto);
-        ValueTask<ResponseModel<UserModel>> DeleteLogicUser(string id);
+        ValueTask<IResult> Login(LoginDTO dto);
+        ValueTask<IResult> CreateUser(CreateUserDTO dto, string path);
+        ValueTask<IResult> GetAllUsers();
+        ValueTask<IResult> GetActiveUsers();
+        ValueTask<IResult> GetUserById(string id);
+        ValueTask<IResult> UpdateUser(UpdateUserDTO dto);
+        ValueTask<IResult> DisableUser(string id);
+        ValueTask<IResult> DeleteUser(string id);
     }
 }

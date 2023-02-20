@@ -5,6 +5,7 @@
         public static IServiceCollection AddValidators(this IServiceCollection services)
         {
             services.AddScoped<IValidator<CreateUserDTO>, CreateUserValidator>();
+            services.AddScoped<IValidator<UpdateUserDTO>, UpdateUserValidator>();
 
             return services;
         }

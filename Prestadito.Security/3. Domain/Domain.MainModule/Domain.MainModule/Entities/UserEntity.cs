@@ -3,9 +3,9 @@
     public class UserEntity : BaseAuditEntity
     {
         [BsonElement("strDOI")]
-        public string StrDOI { get; set; } = null!;
+        public string StrDOI { get; set; } = string.Empty;
         [BsonElement("strPasswordHash")]
-        public string StrPasswordHash { get; set; } = null!;
+        public string StrPasswordHash { get; set; } = string.Empty;
         [BsonElement("objRol")]
         public ParameterEntity ObjRol { get; set; } = null!;
         [BsonElement("blnRegisterComplete")]
@@ -13,6 +13,6 @@
         [BsonElement("objStatus")]
         public ParameterEntity ObjStatus { get; set; } = null!;
         [BsonElement("strEmail")]
-        public string StrEmail { get; set; } = null!;
+        public string StrEmail { get; set; } = string.Empty;
     }
 }

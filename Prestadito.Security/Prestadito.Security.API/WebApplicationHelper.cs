@@ -38,12 +38,6 @@
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());
-
-                //options.AddPolicy(name: myCors,
-                //    policy =>
-                //    {
-                //        policy.WithOrigins("https://localhost").AllowAnyMethod();
-                //    });
             });
 
             return builder.Build();
@@ -59,7 +53,7 @@
 
             app.UseCors(myCors);
 
-            app.UseEndpoints();
+            app.UseEndpoints(myCors);
 
             return app;
         }

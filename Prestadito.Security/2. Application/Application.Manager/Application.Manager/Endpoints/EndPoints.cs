@@ -2,10 +2,11 @@
 {
     public static class EndPoints
     {
-        public static WebApplication UseEndpoints(this WebApplication app)
+        readonly static string basePath = "/api";
+        public static WebApplication UseEndpoints(this WebApplication app, string cors)
         {
             app.UseHealthEndpoints();
-            app.UseUserEndpoints();
+            app.UseUserEndpoints(cors, basePath);
             return app;
         }
     }

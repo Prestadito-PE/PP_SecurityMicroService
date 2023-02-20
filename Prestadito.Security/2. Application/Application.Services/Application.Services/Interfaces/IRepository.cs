@@ -2,10 +2,10 @@
 {
     public interface IRepository<T>
     {
-        ValueTask<List<T>> GetAllAsync();
+        ValueTask<List<T>> GetAllAsync(Expression<Func<T, bool>> filter);
+        ValueTask<T> GetAsync(Expression<Func<T, bool>> filter);
         ValueTask<T> InsertOneAsync(T entity);
         ValueTask<bool> UpdateOneAsync(T entity);
         ValueTask<bool> DeleteOneAsync(Expression<Func<T, bool>> filter);
-        ValueTask<bool> DeleteOneLogicAsync(Expression<Func<T, bool>> filter, T entity);
     }
 }
