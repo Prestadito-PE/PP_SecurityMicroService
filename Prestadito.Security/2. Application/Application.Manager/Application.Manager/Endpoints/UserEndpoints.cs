@@ -34,7 +34,7 @@ namespace Prestadito.Security.Application.Manager.Endpoints
                 {
                     var response = await controller.GetActiveUsers();
                     return response != null && response.Items != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
-                }).RequireCors(myCors);
+                }).RequireCors(myCors).RequireAuthorization();
 
             app.MapGet(path + complementPath + "/{id}",
                 async (string id, IUsersController controller) =>

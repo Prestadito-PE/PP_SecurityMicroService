@@ -1,4 +1,8 @@
-﻿namespace Prestadito.Security.API
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+namespace Prestadito.Security.API
 {
     public static class WebApplicationHelper
     {
@@ -25,7 +29,56 @@
                     Version = "v1",
                     Title = "Prestadio.Micro.Security.API",
                 });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference  = new OpenApiReference
+                            {
+                                Type =  ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
             });
+
+            //Authentication
+
+            var secretKey = Encoding.UTF8.GetBytes("8yBEHrPo5rut8alxAWnGd2nvZr4u7xeThWm2Z00q4K2bPeShVm");
+
+
+
+
+            builder.Services.AddAuthentication(config =>
+            {
+                config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(config =>
+            {
+                config.RequireHttpsMetadata = false;
+                config.SaveToken = true;
+                config.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
+            builder.Services.AddAuthorization();
+
 
             builder.Services.AddHealthChecks()
                 .AddCheck<MongoDBHealthCheck>(nameof(MongoDBHealthCheck));
@@ -58,7 +111,8 @@
             }
 
             app.UseCors(myCors);
-
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints();
 
             return app;
