@@ -2,6 +2,6 @@
 {
     public class DeleteUserDTO
     {
-        public string Id { get; set; } = null!;
+        public string Id { get; set; } = string.Empty;
     }
 }
