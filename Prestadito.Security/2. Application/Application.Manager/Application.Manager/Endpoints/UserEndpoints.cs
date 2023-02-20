@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Application.Manager.Endpoints
+﻿using Prestadito.Security.Application.Dto.Login;
+
+namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class UserEndpoints
     {
@@ -7,6 +9,14 @@
         public static WebApplication UseUserEndpoints(this WebApplication app)
         {
             string complementPath = "/users";
+
+            app.MapPost(path + complementPath + "UserAuthentication",
+                async (LoginDTO dto, IUsersController controller) =>
+                {
+                    var response = await controller.UserAuthentication(dto);
+                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                }).RequireCors(myCors);
+
             app.MapPost(path + complementPath,
                 async (IValidator<CreateUserDTO> validator, CreateUserDTO dto, IUsersController controller) =>
                 {
