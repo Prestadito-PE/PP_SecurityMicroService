@@ -1,4 +1,6 @@
-﻿global using Microsoft.OpenApi.Models;
+﻿global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using Microsoft.OpenApi.Models;
 global using MongoDB.Driver;
 global using Prestadito.Security.API;
 global using Prestadito.Security.API.Controller;
@@ -17,3 +19,4 @@ global using Prestadito.Security.Domain.MainModule.Entities;
 global using Prestadito.Security.Infrastructure.Data.Settings;
 global using Prestadito.Security.Infrastructure.MainModule.Extensions;
 global using System.Linq.Expressions;
+global using System.Text;

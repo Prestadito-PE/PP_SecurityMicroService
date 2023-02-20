@@ -34,7 +34,7 @@
                 async (IUsersController controller) =>
                 {
                     return await controller.GetActiveUsers();
-                }).RequireCors(cors);
+                }).RequireCors(cors).RequireAuthorization(); ;
 
             app.MapGet(path + "/{id}",
                 async (string id, IUsersController controller) =>
