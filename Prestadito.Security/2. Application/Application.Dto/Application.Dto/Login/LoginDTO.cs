@@ -2,7 +2,7 @@
 {
     public class LoginDTO
     {
-        public string StrDOI { get; set; } = null!;
-        public string StrPassword { get; set; } = null!;
+        public string StrEmail { get; set; } = null!;
+        public string StrPasswordHash { get; set; } = null!;
     }
 }

@@ -1,4 +1,9 @@
-﻿namespace Prestadito.Security.API.Controller
+﻿using Microsoft.AspNetCore.Mvc;
+using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Util;
+using Prestadito.Security.Application.Services.Repositories;
+
+namespace Prestadito.Security.API.Controller
 {
     public class UsersController : IUsersController
     {
@@ -6,6 +11,16 @@
         public UsersController(IDataService dataService)
         {
             userRepository = dataService.Users;
+ 
+        }
+
+        public async ValueTask<ResponseModel<LoginResponseDTO>> UserAuthentication(LoginDTO dto)
+        {
+            dto.StrPasswordHash = CryptoHelper.EncryptAES(dto.StrPasswordHash);
+         
+            LoginResponseDTO entities = await userRepository.GetLoginCredentials(dto);
+
+            return ResponseModel<LoginResponseDTO>.GetResponse(entities);
         }
 
         public async ValueTask<ResponseModel<UserModel>> CreateUser(CreateUserDTO dto)
@@ -237,5 +252,6 @@
             return ResponseModel<UserModel>.GetResponse(userModelItem);
         }
 
+        
     }
 }
