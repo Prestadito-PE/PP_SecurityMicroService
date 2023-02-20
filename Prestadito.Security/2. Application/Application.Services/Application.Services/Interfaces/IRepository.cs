@@ -6,6 +6,6 @@
         ValueTask<T> InsertOneAsync(T entity);
         ValueTask<bool> UpdateOneAsync(T entity);
         ValueTask<bool> DeleteOneAsync(Expression<Func<T, bool>> filter);
-        ValueTask<bool> DeleteOneLogicAsync(Expression<Func<User, bool>> filter, User entity);
+        ValueTask<bool> DeleteOneLogicAsync(Expression<Func<T, bool>> filter, T entity);
     }
 }

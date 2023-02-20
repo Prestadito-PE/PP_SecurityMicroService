@@ -5,6 +5,7 @@ global using Prestadito.Security.API;
 global using Prestadito.Security.API.Controller;
 global using Prestadito.Security.Application.Dto.User;
 global using Prestadito.Security.Application.Manager.Endpoints;
+global using Prestadito.Security.Application.Manager.Extensions;
 global using Prestadito.Security.Application.Manager.Interfaces;
 global using Prestadito.Security.Application.Manager.Models;
 global using Prestadito.Security.Application.Manager.Utilities;

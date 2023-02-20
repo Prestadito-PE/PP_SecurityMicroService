@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\3. Domain\Domain.MainModule\Domain.MainModule\Prestadito.Security.Domain.MainModule.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.27.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.27.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\4. Infrastructure\Infrastructure.Data\Infrastructure.Data\Prestadito.Security.Infrastructure.Data.csproj" />
     <ProjectReference Include="..\..\Application.Dto\Application.Dto\Prestadito.Security.Application.Dto.csproj" />
+    <ProjectReference Include="..\..\Application.Manager\Application.Manager\Prestadito.Security.Application.Manager.csproj" />
   </ItemGroup>
 
 </Project>
