@@ -1,4 +1,7 @@
-﻿namespace Prestadito.Security.Domain.MainModule.Entities
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Prestadito.Security.Domain.MainModule.Core;
+
+namespace Prestadito.Security.Domain.MainModule.Entities
 {
     public class UserEntity : BaseAuditEntity
     {

@@ -1,4 +1,7 @@
-﻿namespace Prestadito.Security.Application.Manager.Validators
+﻿using FluentValidation;
+using Prestadito.Security.Application.Dto.User;
+
+namespace Prestadito.Security.Application.Manager.Validators
 {
     public class CreateUserValidator : AbstractValidator<CreateUserDTO>
     {

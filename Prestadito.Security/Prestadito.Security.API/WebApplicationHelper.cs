@@ -1,4 +1,17 @@
-﻿namespace Prestadito.Security.API
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Prestadito.Security.API.Controller;
+using Prestadito.Security.Application.Manager.Endpoints;
+using Prestadito.Security.Application.Manager.Extensions;
+using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Application.Services.Services;
+using Prestadito.Security.Infrastructure.Data.Settings;
+using Prestadito.Security.Infrastructure.MainModule.Extensions;
+using System.Text;
+
+namespace Prestadito.Security.API
 {
     public static class WebApplicationHelper
     {
@@ -99,7 +112,7 @@
             app.UseCors(myCors);
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseEndpoints(myCors);
+            app.UseSecurityEndpoints(myCors);
 
             return app;
         }

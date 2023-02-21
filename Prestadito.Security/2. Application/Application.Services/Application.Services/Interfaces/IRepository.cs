@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Application.Services.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace Prestadito.Security.Application.Services.Interfaces
 {
     public interface IRepository<T>
     {

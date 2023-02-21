@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Application.Manager.Models
+﻿using Prestadito.Security.Domain.MainModule.Entities;
+
+namespace Prestadito.Security.Application.Manager.Models
 {
     public class UserModel
     {

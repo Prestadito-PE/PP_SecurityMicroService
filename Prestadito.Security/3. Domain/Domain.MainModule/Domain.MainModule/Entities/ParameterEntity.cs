@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Domain.MainModule.Entities
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace Prestadito.Security.Domain.MainModule.Entities
 {
     public class ParameterEntity
     {

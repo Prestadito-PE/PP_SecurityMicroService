@@ -1,4 +1,15 @@
-﻿namespace Prestadito.Security.API.Controller
+﻿using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Dto.Util;
+using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.Models;
+using Prestadito.Security.Application.Manager.Utilities;
+using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Application.Services.Utilities;
+using Prestadito.Security.Domain.MainModule.Entities;
+using System.Linq.Expressions;
+
+namespace Prestadito.Security.API.Controller
 {
     public class UsersController : IUsersController
     {

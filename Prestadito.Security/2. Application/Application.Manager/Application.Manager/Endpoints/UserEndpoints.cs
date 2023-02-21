@@ -1,4 +1,11 @@
-﻿namespace Prestadito.Security.Application.Manager.Endpoints
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Manager.Interfaces;
+
+namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class UserEndpoints
     {

@@ -1,4 +1,9 @@
-﻿namespace Prestadito.Security.Application.Manager.Extensions
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Manager.Validators;
+
+namespace Prestadito.Security.Application.Manager.Extensions
 {
     public static class ServiceCollectionExtension
     {
