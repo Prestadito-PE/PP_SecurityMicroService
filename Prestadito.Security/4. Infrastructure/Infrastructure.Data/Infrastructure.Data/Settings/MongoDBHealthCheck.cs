@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Infrastructure.Data.Settings
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+namespace Prestadito.Security.Infrastructure.Data.Settings
 {
     public class MongoDBHealthCheck : IHealthCheck
     {

@@ -1,4 +1,11 @@
-﻿namespace Prestadito.Security.Application.Services.Utilities
+﻿using Microsoft.IdentityModel.Tokens;
+using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Manager.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace Prestadito.Security.Application.Services.Utilities
 {
     public class JWT
     {

@@ -1,4 +1,7 @@
-﻿namespace Prestadito.Security.Domain.MainModule.Core
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Prestadito.Security.Domain.MainModule.Core
 {
     public class BaseEntity
     {

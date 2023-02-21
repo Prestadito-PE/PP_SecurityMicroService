@@ -1,4 +1,8 @@
-﻿namespace Prestadito.Security.Application.Services.Services
+﻿using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Application.Services.Repositories;
+using Prestadito.Security.Infrastructure.Data.Context;
+
+namespace Prestadito.Security.Application.Services.Services
 {
     public class DataService : IDataService
     {

@@ -1,4 +1,7 @@
-﻿namespace Prestadito.Security.Application.Dto.Util
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace Prestadito.Security.Application.Dto.Util
 {
     public class CryptoHelper
     {
