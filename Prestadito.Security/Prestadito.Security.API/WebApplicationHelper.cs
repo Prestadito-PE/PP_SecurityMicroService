@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using Prestadito.Security.API.Controller;
 using Prestadito.Security.Application.Manager.Endpoints;
 using Prestadito.Security.Application.Manager.Extensions;
@@ -9,14 +7,11 @@ using Prestadito.Security.Application.Services.Interfaces;
 using Prestadito.Security.Application.Services.Services;
 using Prestadito.Security.Infrastructure.Data.Settings;
 using Prestadito.Security.Infrastructure.MainModule.Extensions;
-using System.Text;
 
 namespace Prestadito.Security.API
 {
     public static class WebApplicationHelper
     {
-        readonly static string myCors = "myCors";
-
         public static WebApplication CreateWebApplication(this WebApplicationBuilder builder)
         {
             var provider = builder.Services.BuildServiceProvider();
@@ -38,65 +33,10 @@ namespace Prestadito.Security.API
                     Version = "v1",
                     Title = "Prestadio.Micro.Security.API",
                 });
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header
-                });
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference  = new OpenApiReference
-                            {
-                                Type =  ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
             });
-
-            //Authentication
-            var secretKey = Encoding.UTF8.GetBytes("8yBEHrPo5rut8alxAWnGd2nvZr4u7xeThWm2Z00q4K2bPeShVm");
-
-            builder.Services.AddAuthentication(config =>
-            {
-                config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(config =>
-            {
-                config.RequireHttpsMetadata = false;
-                config.SaveToken = true;
-                config.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(secretKey),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
-
-            builder.Services.AddAuthorization();
-
 
             builder.Services.AddHealthChecks()
                 .AddCheck<MongoDBHealthCheck>(nameof(MongoDBHealthCheck));
-
-            builder.Services.AddCors(options =>
-            {
-                var urlList = configuration.GetSection("AllowedOrigin").GetChildren().Select(c => c.Value).ToArray();
-                options.AddPolicy(myCors,
-                    builder => builder.WithOrigins(urlList)
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials());
-            });
 
             return builder.Build();
         }
@@ -109,10 +49,7 @@ namespace Prestadito.Security.API
                 app.UseSwaggerUI();
             }
 
-            app.UseCors(myCors);
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseSecurityEndpoints(myCors);
+            app.UseSecurityEndpoints();
 
             return app;
         }
