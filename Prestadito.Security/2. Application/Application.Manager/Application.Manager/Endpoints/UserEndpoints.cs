@@ -1,44 +1,75 @@
-﻿namespace Prestadito.Security.Application.Manager.Endpoints
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Manager.Interfaces;
+
+namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class UserEndpoints
     {
-        readonly static string path = "/api/security";
-        public static WebApplication UseSecurityEndpoints(this WebApplication app)
+        readonly static string collection = "users";
+        public static WebApplication UseUserEndpoints(this WebApplication app, string basePath)
         {
-            string complementPath = "/users";
-            app.MapPost(path + complementPath,
-                async (CreateUserDTO dto, IUsersController controller) =>
+            string path = string.Format("{0}/{1}", basePath, collection);
+
+            app.MapPost(path + "/login",
+                async (LoginDTO dto, IUsersController controller) =>
                 {
-                    var response = await controller.CreateUser(dto);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                    return await controller.Login(dto);
                 });
 
-            app.MapGet(path + complementPath + "/active",
+            app.MapPost(path,
+                async (IValidator<CreateUserDTO> validator, CreateUserDTO dto, IUsersController controller) =>
+                {
+                    var validationResult = await validator.ValidateAsync(dto);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+                    return await controller.CreateUser(dto, string.Format("~/{0}", path));
+                });
+
+            app.MapGet(path + "/all",
                 async (IUsersController controller) =>
                 {
-                    var response = await controller.GetActiveUsers();
-                    return response != null && response.Items != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                    return await controller.GetAllUsers();
                 });
 
-            app.MapGet(path + complementPath + "/{id}",
+            app.MapGet(path,
+                async (IUsersController controller) =>
+                {
+                    return await controller.GetActiveUsers();
+                });
+
+            app.MapGet(path + "/{id}",
                 async (string id, IUsersController controller) =>
                 {
-                    var response = await controller.GetUserById(id);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                    return await controller.GetUserById(id);
                 });
 
-            app.MapPut(path + complementPath,
-                async (UpdateUserDTO dto, IUsersController controller) =>
+            app.MapPut(path,
+                async (IValidator<UpdateUserDTO> validator, UpdateUserDTO dto, IUsersController controller) =>
                 {
-                    var response = await controller.UpdateUser(dto);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                    var validationResult = await validator.ValidateAsync(dto);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+                    return await controller.UpdateUser(dto);
                 });
 
-            app.MapPut(path + complementPath + "/delete/{id}",
+            app.MapPut(path + "/disable/{id}",
                 async (string id, IUsersController controller) =>
                 {
-                    var response = await controller.DeleteLogicUser(id);
-                    return response != null ? Results.Ok(response) : Results.UnprocessableEntity(response);
+                    return await controller.DisableUser(id);
+                });
+
+            app.MapDelete(path + "/delete/{id}",
+                async (string id, IUsersController controller) =>
+                {
+                    return await controller.DeleteUser(id);
                 });
 
             return app;

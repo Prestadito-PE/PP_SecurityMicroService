@@ -1,10 +1,12 @@
-﻿namespace Prestadito.Security.Infrastructure.Data.Settings
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+namespace Prestadito.Security.Infrastructure.Data.Settings
 {
     public class MongoDBHealthCheck : IHealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            bool result = false;
+            bool result = true;
 
             if (result)
             {

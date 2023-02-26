@@ -1,8 +1,8 @@
-﻿namespace Prestadito.Security.Application.Services.Interfaces
+﻿using Prestadito.Security.Domain.MainModule.Entities;
+
+namespace Prestadito.Security.Application.Services.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface IUserRepository : IRepository<UserEntity>
     {
-        ValueTask<User> GetUserByIdAsync(string id);
-        ValueTask<List<User>> GetUsersAsync(Expression<Func<User, bool>> filter);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Infrastructure.Data.Settings
+﻿using Prestadito.Security.Infrastructure.Data.Interface;
+
+namespace Prestadito.Security.Infrastructure.Data.Settings
 {
     public class SecurityDBSettings : ISecurityDBSettings
     {

@@ -1,4 +1,15 @@
-﻿namespace Prestadito.Security.API.Controller
+﻿using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Dto.Util;
+using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.Models;
+using Prestadito.Security.Application.Manager.Utilities;
+using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Application.Services.Utilities;
+using Prestadito.Security.Domain.MainModule.Entities;
+using System.Linq.Expressions;
+
+namespace Prestadito.Security.API.Controller
 {
     public class UsersController : IUsersController
     {
@@ -8,216 +19,279 @@
             userRepository = dataService.Users;
         }
 
-        public async ValueTask<ResponseModel<UserModel>> CreateUser(CreateUserDTO dto)
+        public async ValueTask<IResult> Login(LoginDTO dto)
         {
-            if (dto is null)
+            ResponseModel<LoginResponseDTO> responseModel;
+
+            var passwordHash = CryptoHelper.EncryptAES(dto.StrPassword);
+            Expression<Func<UserEntity, bool>> filter = f => f.StrEmail == dto.StrEmail && f.StrPasswordHash == passwordHash;
+
+            var entity = await userRepository.GetAsync(filter);
+
+            if (entity is null)
             {
-                return ResponseModel<UserModel>.GetResponse("Request body is null");
+                responseModel = ResponseModel<LoginResponseDTO>.GetResponse("User not exist");
+                return Results.NotFound(responseModel);
             }
 
-            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.RolCode))
+            UserModel userMap = new()
             {
-                return ResponseModel<UserModel>.GetResponse("Request body is not valid");
+                Id = entity.Id,
+                StrDOI = entity.StrDOI,
+                ObjRol = entity.ObjRol,
+                BlnRegisterComplete = entity.BlnRegisterComplete,
+                StrEmail = entity.StrEmail,
+                ObjStatus = entity.ObjStatus
+            };
+
+            LoginResponseDTO loginResponseDTO = JWT.GenerateToken(userMap);
+            responseModel = ResponseModel<LoginResponseDTO>.GetResponse(loginResponseDTO);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> CreateUser(CreateUserDTO dto, string path)
+        {
+            ResponseModel<UserModel> responseModel;
+
+            Expression<Func<UserEntity, bool>> filter = f => f.StrEmail == dto.StrEmail;
+            var userExist = await userRepository.GetAllAsync(filter);
+            if (userExist is not null && userExist.Count > 0)
+            {
+                responseModel = ResponseModel<UserModel>.GetResponse($"Email is already exist");
+                return Results.NotFound(responseModel);
             }
 
-            var rol = MockRol.GetRolByCode(dto.RolCode);
+            var rol = Mocks.GetRolByCode(dto.StrRolCode);
             if (rol is null)
             {
-                return ResponseModel<UserModel>.GetResponse("Rol not exist");
+                responseModel = ResponseModel<UserModel>.GetResponse("Rol not exist");
+                return Results.NotFound(responseModel);
             }
 
-            var entity = new User
+            var userStatus = Mocks.GetUserStatus("0");
+            if (userStatus is null)
             {
-                StrUsername = dto.Username,
-                StrPassword = dto.Password,
+                responseModel = ResponseModel<UserModel>.GetResponse("UserStatus not exist");
+                return Results.NotFound(responseModel);
+            }
+
+            var passwordHash = CryptoHelper.EncryptAES(dto.StrPassword);
+            var entity = new UserEntity
+            {
+                StrEmail = dto.StrEmail,
+                StrPasswordHash = passwordHash,
                 ObjRol = rol,
-                StrCreateUser = "",
+                BlnRegisterComplete = false,
+                ObjStatus = userStatus,
                 DteCreatedAt = DateTime.UtcNow,
                 BlnActive = true
             };
 
-            var newEntity = await userRepository.InsertOneAsync(entity);
-            if (newEntity is null)
+            var newUser = await userRepository.InsertOneAsync(entity);
+            if (newUser is null)
             {
-                return ResponseModel<UserModel>.GetResponse("Entity not created");
+                responseModel = ResponseModel<UserModel>.GetResponse("Entity not created");
+                return Results.UnprocessableEntity(responseModel);
             }
 
             var userModelItem = new UserModel
             {
-                Id = newEntity.Id,
-                StrUsername = newEntity.StrUsername,
+                Id = newUser.Id,
+                StrDOI = newUser.StrDOI,
                 ObjRol = rol,
-                BlnActive = newEntity.BlnActive
+                BlnActive = newUser.BlnActive
             };
-            return ResponseModel<UserModel>.GetResponse(userModelItem);
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
+            return Results.Created(string.Format("{0}/{1}", path, responseModel.Item.Id), responseModel);
         }
 
-        public async ValueTask<ResponseModel<UserModel>> GetAllUsers()
+        public async ValueTask<IResult> GetAllUsers()
         {
-            var entities = await userRepository.GetAllAsync();
+            ResponseModel<UserModel> responseModel;
+
+            Expression<Func<UserEntity, bool>> filter = f => true;
+            var entities = await userRepository.GetAllAsync(filter);
 
             var userModelItems = entities.Select(u => new UserModel
             {
                 Id = u.Id,
-                StrUsername = u.StrUsername,
+                StrDOI = u.StrDOI,
                 ObjRol = u.ObjRol,
+                BlnRegisterComplete = u.BlnRegisterComplete,
+                StrEmail = u.StrEmail,
+                ObjStatus = u.ObjStatus,
                 BlnActive = u.BlnActive
             }).ToList();
-            return ResponseModel<UserModel>.GetResponse(userModelItems);
+
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItems);
+            return Results.Json(responseModel);
         }
 
-        public async ValueTask<ResponseModel<UserModel>> GetActiveUsers()
+        public async ValueTask<IResult> GetActiveUsers()
         {
-            Expression<Func<User, bool>> filter = f => f.BlnActive;
+            ResponseModel<UserModel> responseModel;
 
-            var entities = await userRepository.GetUsersAsync(filter);
+            Expression<Func<UserEntity, bool>> filter = f => f.BlnActive;
+            var entities = await userRepository.GetAllAsync(filter);
 
             var userModelItems = entities.Select(u => new UserModel
             {
                 Id = u.Id,
-                StrUsername = u.StrUsername,
+                StrDOI = u.StrDOI,
                 ObjRol = u.ObjRol,
+                BlnRegisterComplete = u.BlnRegisterComplete,
+                StrEmail = u.StrEmail,
+                ObjStatus = u.ObjStatus,
                 BlnActive = u.BlnActive
             }).ToList();
-            return ResponseModel<UserModel>.GetResponse(userModelItems);
+
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItems);
+            return Results.Json(responseModel);
         }
 
-        public async ValueTask<ResponseModel<UserModel>> GetUserById(string id)
+        public async ValueTask<IResult> GetUserById(string id)
         {
+            ResponseModel<UserModel> responseModel;
+
             if (string.IsNullOrWhiteSpace(id))
             {
-                return ResponseModel<UserModel>.GetResponse("Id is empty");
+                responseModel = ResponseModel<UserModel>.GetResponse("Id is empty");
+                return Results.BadRequest(responseModel);
             }
 
-            var entity = await userRepository.GetUserByIdAsync(id);
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == id;
+            var entity = await userRepository.GetAsync(filter);
             if (entity is null)
             {
-                return ResponseModel<UserModel>.GetResponse("User not found");
+                responseModel = ResponseModel<UserModel>.GetResponse("User not found");
+                return Results.NotFound(responseModel);
             }
 
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
+                StrDOI = entity.StrDOI,
                 ObjRol = entity.ObjRol,
+                BlnRegisterComplete = entity.BlnRegisterComplete,
+                StrEmail = entity.StrEmail,
+                ObjStatus = entity.ObjStatus,
                 BlnActive = entity.BlnActive
             };
-            return ResponseModel<UserModel>.GetResponse(userModelItem);
+
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
+            return Results.Json(responseModel);
         }
 
-        public async ValueTask<ResponseModel<UserModel>> UpdateUser(UpdateUserDTO dto)
+        public async ValueTask<IResult> UpdateUser(UpdateUserDTO dto)
         {
-            if (dto is null)
-            {
-                return ResponseModel<UserModel>.GetResponse("Request body is null");
-            }
+            ResponseModel<UserModel> responseModel;
 
-            if (string.IsNullOrWhiteSpace(dto.Id) || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
-            {
-                return ResponseModel<UserModel>.GetResponse("Request body is not valid");
-            }
-
-            var entity = await userRepository.GetUserByIdAsync(dto.Id);
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == dto.Id;
+            var entity = await userRepository.GetAsync(filter);
             if (entity is null)
             {
-                return ResponseModel<UserModel>.GetResponse("User not exist");
+                responseModel = ResponseModel<UserModel>.GetResponse("User not exist");
+                return Results.NotFound(responseModel);
             }
 
-            var rol = MockRol.GetRolByCode(dto.RolCode);
+            var rol = Mocks.GetRolByCode(dto.StrRolCode);
             if (rol is null)
             {
-                return ResponseModel<UserModel>.GetResponse("Rol not exist");
+                responseModel = ResponseModel<UserModel>.GetResponse("Rol not exist");
+                return Results.NotFound(responseModel);
             }
 
-            entity.StrUsername = dto.Username;
-            entity.StrPassword = dto.Password;
+            var userStatus = Mocks.GetUserStatus("0");
+            if (userStatus is null)
+            {
+                responseModel = ResponseModel<UserModel>.GetResponse("UserStatus not exist");
+                return Results.NotFound(responseModel);
+            }
+
+            entity.StrDOI = dto.StrDOI;
+            entity.StrPasswordHash = Hash256.Encrypt(dto.StrPassword);
+            entity.BlnRegisterComplete = true;
+            entity.ObjStatus = userStatus;
             entity.ObjRol = rol;
 
             var isUserUpdated = await userRepository.UpdateOneAsync(entity);
 
             if (!isUserUpdated)
             {
-                return ResponseModel<UserModel>.GetResponse("User not updated");
+                responseModel = ResponseModel<UserModel>.GetResponse("User not updated");
+                return Results.UnprocessableEntity(responseModel);
             }
 
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
-                ObjRol = entity.ObjRol,
+                StrDOI = entity.StrDOI,
+                ObjRol = rol,
                 BlnActive = entity.BlnActive
             };
-            return ResponseModel<UserModel>.GetResponse(userModelItem);
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
+            return Results.Json(responseModel);
         }
 
-        public async ValueTask<ResponseModel<UserModel>> DeleteUser(DeleteUserDTO dto)
+        public async ValueTask<IResult> DisableUser(string id)
         {
-            if (dto is null)
-            {
-                return ResponseModel<UserModel>.GetResponse("Request body is null");
-            }
+            ResponseModel<UserModel> responseModel;
 
-            if (string.IsNullOrWhiteSpace(dto.Id))
-            {
-                return ResponseModel<UserModel>.GetResponse("Request body is not valid");
-            }
-
-            var entity = await userRepository.GetUserByIdAsync(dto.Id);
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == id;
+            var entity = await userRepository.GetAsync(filter);
             if (entity is null)
             {
-                return ResponseModel<UserModel>.GetResponse("User not exist");
+                responseModel = ResponseModel<UserModel>.GetResponse("User not exist");
+                return Results.NotFound(responseModel);
             }
 
             entity.BlnActive = false;
-            Expression<Func<User, bool>> filter = f => f.Id == dto.Id;
+            var isUserUpdated = await userRepository.UpdateOneAsync(entity);
+            if (!isUserUpdated)
+            {
+                responseModel = ResponseModel<UserModel>.GetResponse("User not deleted");
+                return Results.UnprocessableEntity(responseModel);
+            }
+
+            var userModelItem = new UserModel
+            {
+                Id = entity.Id,
+                StrDOI = entity.StrDOI,
+                ObjRol = entity.ObjRol,
+                BlnActive = entity.BlnActive
+            };
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> DeleteUser(string id)
+        {
+            ResponseModel<UserModel> responseModel;
+
+            Expression<Func<UserEntity, bool>> filter = f => f.Id == id;
+            var entity = await userRepository.GetAsync(filter);
+            if (entity is null)
+            {
+                responseModel = ResponseModel<UserModel>.GetResponse("User not exist");
+                return Results.NotFound(responseModel);
+            }
 
             var isUserUpdated = await userRepository.DeleteOneAsync(filter);
             if (!isUserUpdated)
             {
-                return ResponseModel<UserModel>.GetResponse("User not deleted");
+                responseModel = ResponseModel<UserModel>.GetResponse("User not deleted");
+                return Results.UnprocessableEntity(responseModel);
             }
 
             var userModelItem = new UserModel
             {
                 Id = entity.Id,
-                StrUsername = entity.StrUsername,
+                StrDOI = entity.StrDOI,
                 ObjRol = entity.ObjRol,
                 BlnActive = entity.BlnActive
             };
-            return ResponseModel<UserModel>.GetResponse(userModelItem);
+            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
+            return Results.Json(responseModel);
         }
-
-        public async ValueTask<ResponseModel<UserModel>> DeleteLogicUser(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                return ResponseModel<UserModel>.GetResponse("Request param is not valid");
-            }
-
-            var entity = await userRepository.GetUserByIdAsync(id);
-            if (entity is null)
-            {
-                return ResponseModel<UserModel>.GetResponse("User not exist");
-            }
-
-            entity.BlnActive = false;
-            Expression<Func<User, bool>> filter = f => f.Id == id;
-
-            var isUserUpdated = await userRepository.DeleteOneLogicAsync(filter, entity);
-            if (!isUserUpdated)
-            {
-                return ResponseModel<UserModel>.GetResponse("User not deleted");
-            }
-
-            var userModelItem = new UserModel
-            {
-                Id = entity.Id,
-                StrUsername = entity.StrUsername,
-                ObjRol = entity.ObjRol,
-                BlnActive = entity.BlnActive
-            };
-            return ResponseModel<UserModel>.GetResponse(userModelItem);
-        }
-
     }
 }

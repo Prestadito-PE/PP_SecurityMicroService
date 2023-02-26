@@ -2,9 +2,9 @@
 {
     public class UpdateUserDTO
     {
-        public string Id { get; set; } = null!;
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string RolCode { get; set; } = null!;
+        public string Id { get; set; } = string.Empty;
+        public string StrDOI { get; set; } = string.Empty;
+        public string StrPassword { get; set; } = string.Empty;
+        public string StrRolCode { get; set; } = string.Empty;
     }
 }

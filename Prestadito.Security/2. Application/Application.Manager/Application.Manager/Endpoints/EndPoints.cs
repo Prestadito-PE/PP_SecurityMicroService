@@ -1,11 +1,14 @@
-﻿namespace Prestadito.Security.Application.Manager.Endpoints
+﻿using Microsoft.AspNetCore.Builder;
+
+namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class EndPoints
     {
-        public static WebApplication UseEndpoints(this WebApplication app)
+        readonly static string basePath = "/api";
+        public static WebApplication UseSecurityEndpoints(this WebApplication app)
         {
             app.UseHealthEndpoints();
-            app.UseSecurityEndpoints();
+            app.UseUserEndpoints(basePath);
             return app;
         }
     }

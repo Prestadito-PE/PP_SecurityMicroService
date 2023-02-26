@@ -1,4 +1,7 @@
-﻿namespace Prestadito.Security.Infrastructure.Data.Context
+﻿using MongoDB.Driver;
+using Prestadito.Security.Infrastructure.Data.Interface;
+
+namespace Prestadito.Security.Infrastructure.Data.Context
 {
     public class MongoContext
     {

@@ -1,25 +1,29 @@
-﻿using Prestadito.Security.API.Controller;
+﻿using Microsoft.OpenApi.Models;
+using Prestadito.Security.API.Controller;
+using Prestadito.Security.Application.Manager.Endpoints;
+using Prestadito.Security.Application.Manager.Extensions;
+using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Application.Services.Services;
+using Prestadito.Security.Infrastructure.Data.Settings;
+using Prestadito.Security.Infrastructure.MainModule.Extensions;
 
 namespace Prestadito.Security.API
 {
     public static class WebApplicationHelper
     {
-        readonly static string myCors = "myCors";
-
         public static WebApplication CreateWebApplication(this WebApplicationBuilder builder)
         {
-
             var provider = builder.Services.BuildServiceProvider();
 
             var configuration = provider.GetRequiredService<IConfiguration>();
 
-            builder.Services.AddDbContexts(configuration);
-            builder.Services.AddSingleton<ISecurityDBSettings>(sp => sp.GetRequiredService<IOptions<SecurityDBSettings>>().Value);
-
-            builder.Services.AddSingleton<MongoContext>();
+            builder.Services.AddMongoDbContext(configuration);
 
             builder.Services.AddScoped<IDataService, DataService>();
             builder.Services.AddScoped<IUsersController, UsersController>();
+
+            builder.Services.AddValidators();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -34,15 +38,6 @@ namespace Prestadito.Security.API
             builder.Services.AddHealthChecks()
                 .AddCheck<MongoDBHealthCheck>(nameof(MongoDBHealthCheck));
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(name: myCors,
-                    policy =>
-                    {
-                        policy.WithOrigins("https://localhost").AllowAnyMethod();
-                    });
-            });
-
             return builder.Build();
         }
 
@@ -54,9 +49,7 @@ namespace Prestadito.Security.API
                 app.UseSwaggerUI();
             }
 
-            app.UseCors(myCors);
-
-            app.UseEndpoints();
+            app.UseSecurityEndpoints();
 
             return app;
         }

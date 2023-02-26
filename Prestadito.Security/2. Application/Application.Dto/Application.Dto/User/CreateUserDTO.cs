@@ -2,8 +2,8 @@
 {
     public class CreateUserDTO
     {
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string RolCode { get; set; } = null!;
+        public string StrEmail { get; set; } = string.Empty;
+        public string StrPassword { get; set; } = string.Empty;
+        public string StrRolCode { get; set; } = string.Empty;
     }
 }

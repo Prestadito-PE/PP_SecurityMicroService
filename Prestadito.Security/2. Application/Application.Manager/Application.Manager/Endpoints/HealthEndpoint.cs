@@ -1,4 +1,6 @@
-﻿namespace Prestadito.Security.Application.Manager.Endpoints
+﻿using Microsoft.AspNetCore.Builder;
+
+namespace Prestadito.Security.Application.Manager.Endpoints
 {
     public static class HealthEndpoint
     {
