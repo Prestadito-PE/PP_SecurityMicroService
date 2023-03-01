@@ -5,6 +5,6 @@
         public string Id { get; set; } = string.Empty;
         public string StrDOI { get; set; } = string.Empty;
         public string StrPassword { get; set; } = string.Empty;
-        public string StrRolCode { get; set; } = string.Empty;
+        public string StrRolId { get; set; } = string.Empty;
     }
 }

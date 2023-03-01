@@ -9,12 +9,12 @@ namespace Prestadito.Security.Domain.MainModule.Entities
         public string StrDOI { get; set; } = string.Empty;
         [BsonElement("strPasswordHash")]
         public string StrPasswordHash { get; set; } = string.Empty;
-        [BsonElement("objRol")]
-        public ParameterEntity ObjRol { get; set; } = null!;
+        [BsonElement("strRolId")]
+        public string StrRolId { get; set; } = string.Empty;
         [BsonElement("blnRegisterComplete")]
         public bool BlnRegisterComplete { get; set; }
-        [BsonElement("objStatus")]
-        public ParameterEntity ObjStatus { get; set; } = null!;
+        [BsonElement("strStatusId")]
+        public string StrStatusId { get; set; } = string.Empty;
         [BsonElement("strEmail")]
         public string StrEmail { get; set; } = string.Empty;
     }
