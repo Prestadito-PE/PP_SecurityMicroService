@@ -1,19 +1,28 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Prestadito.Security.Application.Dto.Login;
 using Prestadito.Security.Application.Manager.Models;
+using Prestadito.Security.Application.Services.Interfaces;
+using Prestadito.Security.Infrastructure.Data.Interface;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Prestadito.Security.Application.Services.Utilities
 {
-    public class JWT
+    public class JWTHelper : IJWTHelper
     {
-        public static LoginResponseDTO GenerateToken(UserModel entity)
+        private readonly IJWTSettings jwtSettings;
+
+        public JWTHelper(IJWTSettings _jwtSettings)
+        {
+            jwtSettings = _jwtSettings;
+        }
+
+        public LoginResponseDTO GenerateToken(UserModel entity)
         {
             LoginResponseDTO response;
             //Header 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("8yBEHrPo5rut8alxAWnGd2nvZr4u7xeThWm2Z00q4K2bPeShVm"));
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var header = new JwtHeader(signingCredentials);
 
@@ -29,12 +38,12 @@ namespace Prestadito.Security.Application.Services.Utilities
             //Payload
             var payload = new JwtPayload
             (
-               "https://localhost:5001/",
-               "https://localhost:5001/",
+               jwtSettings.Issuer,
+               jwtSettings.Audience,
                claims,
                DateTime.Now,
-               expires: DateTime.Now.AddMinutes(5),
-               DateTime.UtcNow.AddMinutes(5)
+               expires: DateTime.Now.AddMinutes(jwtSettings.ExpirationInMinutes),
+               DateTime.UtcNow.AddMinutes(jwtSettings.ExpirationInMinutes)
             );
 
             var token = new JwtSecurityToken(header, payload);

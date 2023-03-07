@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\2. Application\Application.Manager\Application.Manager\Prestadito.Security.Application.Manager.csproj" />
     <ProjectReference Include="..\2. Application\Application.Services\Application.Services\Prestadito.Security.Application.Services.csproj" />
+    <ProjectReference Include="..\4. Infrastructure\Infrastructure.Proxies\Infrastructure.Proxies\Prestadito.Security.Infrastructure.Proxies.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

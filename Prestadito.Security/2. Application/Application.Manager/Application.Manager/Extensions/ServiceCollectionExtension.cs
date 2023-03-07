@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Prestadito.Security.Application.Dto.Login;
 using Prestadito.Security.Application.Dto.User;
 using Prestadito.Security.Application.Manager.Validators;
 
@@ -12,6 +13,7 @@ namespace Prestadito.Security.Application.Manager.Extensions
             services.AddScoped<IValidator<CreateUserDTO>, CreateUserValidator>();
             services.AddScoped<IValidator<UpdateUserDTO>, UpdateUserValidator>();
 
+            services.AddScoped<IValidator<LoginDTO>, LoginValidator>();
             return services;
         }
     }

@@ -1,10 +1,12 @@
-﻿using Prestadito.Security.Domain.MainModule.Entities;
+﻿using MongoDB.Driver;
+using Prestadito.Security.Domain.MainModule.Entities;
 using System.Linq.Expressions;
 
 namespace Prestadito.Security.Application.Services.Interfaces
 {
-    public interface ISessionRepository
+    public interface ISessionRepository : IRepository<SessionEntity>
     {
-        ValueTask<List<SessionEntity>> GetSessionsAsync(Expression<Func<SessionEntity, bool>> filter);
+        ValueTask<List<SessionEntity>> GetFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions);
+        ValueTask<SessionEntity> GetSingleFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions);
     }
 }
