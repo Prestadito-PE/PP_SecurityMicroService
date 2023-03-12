@@ -31,7 +31,20 @@ namespace Prestadito.Security.API
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Prestadio.Micro.Security.API",
+                    Title = "Prestadito.Micro.Security.API",
+                    Description = "ASP.NET Core Web API Control Schedule System",
+                    TermsOfService = new Uri("https://prestadito.pe/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Prestadito.pe",
+                        Email = "contacto@prestadito.pe",
+                        Url = new Uri("https://prestadito.pe"),
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Use under LICX",
+                        Url = new Uri("https://prestadito.pe"),
+                    }
                 });
             });
 
@@ -43,11 +56,14 @@ namespace Prestadito.Security.API
 
         public static WebApplication ConfigureWebApplication(this WebApplication app)
         {
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("v1/swagger.json", "Prestadito.Micro.Security.API");
+                });
+            //}
 
             app.UseSecurityEndpoints();
 
