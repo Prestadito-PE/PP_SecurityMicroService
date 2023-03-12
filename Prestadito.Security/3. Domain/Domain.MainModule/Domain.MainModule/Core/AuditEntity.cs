@@ -2,7 +2,7 @@
 
 namespace Prestadito.Security.Domain.MainModule.Core
 {
-    public class AuditEntity
+    public class AuditEntity : BaseEntity
     {
         [BsonElement("strCreateUser")]
         public string StrCreateUser { get; set; } = null!;

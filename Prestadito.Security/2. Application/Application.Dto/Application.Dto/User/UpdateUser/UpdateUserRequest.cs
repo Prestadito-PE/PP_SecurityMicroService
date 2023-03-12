@@ -1,6 +1,6 @@
-﻿namespace Prestadito.Security.Application.Dto.User
+﻿namespace Prestadito.Security.Application.Dto.User.UpdateUser
 {
-    public class UpdateUserDTO
+    public class UpdateUserRequest
     {
         public string Id { get; set; } = string.Empty;
         public string StrDOI { get; set; } = string.Empty;

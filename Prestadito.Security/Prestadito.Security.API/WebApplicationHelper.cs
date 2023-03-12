@@ -51,7 +51,7 @@ namespace Prestadito.Security.API
 
         public static WebApplication ConfigureWebApplication(this WebApplication app)
         {
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();

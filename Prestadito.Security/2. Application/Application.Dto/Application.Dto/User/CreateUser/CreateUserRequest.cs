@@ -1,6 +1,6 @@
-﻿namespace Prestadito.Security.Application.Dto.User
+﻿namespace Prestadito.Security.Application.Dto.User.CreateUser
 {
-    public class CreateUserDTO
+    public class CreateUserRequest
     {
         public string StrEmail { get; set; } = string.Empty;
         public string StrPassword { get; set; } = string.Empty;

@@ -177,7 +177,7 @@ namespace Prestadito.Security.API.Controller
                 Id = entityUser.Id,
                 StrDOI = entityUser.StrDOI,
                 StrRolId = entityUser.StrRolId,
-                BlnRegisterComplete = entityUser.BlnRegisterComplete,
+                BlnEmailValitated = entityUser.BlnEmailValitated,
                 StrEmail = entityUser.StrEmail,
                 StrStatusId = entityUser.StrStatusId
             };

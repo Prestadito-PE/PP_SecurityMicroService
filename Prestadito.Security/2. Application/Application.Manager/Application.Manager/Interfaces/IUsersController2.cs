@@ -4,7 +4,7 @@ using Prestadito.Security.Application.Dto.User.UpdateUser;
 
 namespace Prestadito.Security.Application.Manager.Interfaces
 {
-    public interface IUsersController2
+    public interface IUsersController
     {
         ValueTask<IResult> CreateUser(CreateUserRequest dto, string path);
         ValueTask<IResult> GetAllUsers();

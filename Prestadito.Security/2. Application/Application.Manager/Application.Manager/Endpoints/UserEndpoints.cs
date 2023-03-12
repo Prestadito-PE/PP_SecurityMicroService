@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Dto.User.CreateUser;
+using Prestadito.Security.Application.Dto.User.GetUserById;
+using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Application.Manager.Interfaces;
 
 namespace Prestadito.Security.Application.Manager.Endpoints
@@ -14,7 +16,7 @@ namespace Prestadito.Security.Application.Manager.Endpoints
             string path = $"{basePath}/{collection}";
 
             app.MapPost(path,
-                async (IValidator<CreateUserDTO> validator, CreateUserDTO dto, IUsersController controller) =>
+                async (IValidator<CreateUserRequest> validator, CreateUserRequest dto, IUsersController controller) =>
                 {
                     var validationResult = await validator.ValidateAsync(dto);
                     if (!validationResult.IsValid)
@@ -37,13 +39,19 @@ namespace Prestadito.Security.Application.Manager.Endpoints
                 });
 
             app.MapGet(path + "/{id}",
-                async (string id, IUsersController controller) =>
+                async (IValidator<GetUserByIdRequest> validator, string id, IUsersController controller) =>
                 {
+                    var request = new GetUserByIdRequest { StrId = id };
+                    var validationResult = await validator.ValidateAsync(request);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
                     return await controller.GetUserById(id);
                 });
 
             app.MapPut(path,
-                async (IValidator<UpdateUserDTO> validator, UpdateUserDTO dto, IUsersController controller) =>
+                async (IValidator<UpdateUserRequest> validator, UpdateUserRequest dto, IUsersController controller) =>
                 {
                     var validationResult = await validator.ValidateAsync(dto);
                     if (!validationResult.IsValid)

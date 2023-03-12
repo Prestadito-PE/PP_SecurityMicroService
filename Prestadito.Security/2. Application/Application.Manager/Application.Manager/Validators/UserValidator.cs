@@ -1,9 +1,20 @@
 ﻿using FluentValidation;
-using Prestadito.Security.Application.Dto.User;
+using Prestadito.Security.Application.Dto.User.CreateUser;
+using Prestadito.Security.Application.Dto.User.GetUserById;
+using Prestadito.Security.Application.Dto.User.UpdateUser;
 
 namespace Prestadito.Security.Application.Manager.Validators
 {
-    public class CreateUserValidator : AbstractValidator<CreateUserDTO>
+    public class GetUserByIdValidator : AbstractValidator<GetUserByIdRequest>
+    {
+        public GetUserByIdValidator()
+        {
+            RuleFor(x => x.StrId)
+                .NotEmpty().WithMessage("{PropertyName} is empty");
+        }
+    }
+
+    public class CreateUserValidator : AbstractValidator<CreateUserRequest>
     {
         public CreateUserValidator()
         {
@@ -18,7 +29,7 @@ namespace Prestadito.Security.Application.Manager.Validators
         }
     }
 
-    public class UpdateUserValidator : AbstractValidator<UpdateUserDTO>
+    public class UpdateUserValidator : AbstractValidator<UpdateUserRequest>
     {
         public UpdateUserValidator()
         {

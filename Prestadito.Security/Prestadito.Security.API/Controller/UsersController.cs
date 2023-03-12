@@ -1,5 +1,7 @@
-﻿using Prestadito.Security.Application.Dto.User;
+﻿using Prestadito.Security.Application.Dto.User.CreateUser;
+using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.Mapper;
 using Prestadito.Security.Application.Manager.Models;
 using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Application.Services.Interfaces;
@@ -19,45 +21,38 @@ namespace Prestadito.Security.API.Controller
             userRepository = dataService.Users;
         }
 
-        public async ValueTask<IResult> CreateUser(CreateUserDTO dto, string path)
+        public async ValueTask<IResult> CreateUser(CreateUserRequest request, string path)
         {
-            ResponseModel<UserModel> responseModel;
+            ResponseModel<CreateUserResponse> responseModel;
 
-            Expression<Func<UserEntity, bool>> filter = f => f.StrEmail == dto.StrEmail;
+            Expression<Func<UserEntity, bool>> filter = f => f.StrEmail == request.StrEmail;
             var userExist = await userRepository.GetAllAsync(filter);
             if (userExist is not null && userExist.Count > 0)
             {
-                responseModel = ResponseModel<UserModel>.GetResponse($"Email is already exist");
+                responseModel = ResponseModel<CreateUserResponse>.GetResponse($"Email is already exist");
                 return Results.NotFound(responseModel);
             }
 
-            var passwordHash = CryptoHelper.EncryptAES(dto.StrPassword);
             var entity = new UserEntity
             {
-                StrEmail = dto.StrEmail,
-                StrPasswordHash = passwordHash,
-                StrRolId = dto.StrRolId,
-                BlnRegisterComplete = false,
-                StrStatusId = ConstantSettings.Parameter.UserStatus.STATUS_INCOMPLETE_INFORMATION,
+                StrEmail = request.StrEmail,
+                StrPasswordHash = CryptoHelper.EncryptAES(request.StrPassword),
+                StrRolId = request.StrRolId,
+                BlnEmailValitated = false,
+                StrStatusId = ConstantSettings.Parameter.UserStatus.STATUS_ACTIVE,
                 BlnActive = true
             };
 
             var newUser = await userRepository.InsertOneAsync(entity);
             if (newUser is null)
             {
-                responseModel = ResponseModel<UserModel>.GetResponse("Entity not created");
+                responseModel = ResponseModel<CreateUserResponse>.GetResponse("Entity not created");
                 return Results.UnprocessableEntity(responseModel);
             }
 
-            var userModelItem = new UserModel
-            {
-                Id = newUser.Id,
-                StrDOI = newUser.StrDOI,
-                StrRolId = newUser.StrRolId,
-                BlnActive = newUser.BlnActive
-            };
-            responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
-            return Results.Created(string.Format("{0}/{1}", path, responseModel.Item.Id), responseModel);
+            CreateUserResponse response = entity.MapCreateUser();
+            responseModel = ResponseModel<CreateUserResponse>.GetResponse(response);
+            return Results.Created($"{path}/{responseModel.Item.StrId}", responseModel);
         }
 
         public async ValueTask<IResult> GetAllUsers()
@@ -72,7 +67,7 @@ namespace Prestadito.Security.API.Controller
                 Id = u.Id,
                 StrDOI = u.StrDOI,
                 StrRolId = u.StrRolId,
-                BlnRegisterComplete = u.BlnRegisterComplete,
+                BlnEmailValitated = u.BlnEmailValitated,
                 StrEmail = u.StrEmail,
                 StrStatusId = u.StrStatusId,
                 BlnActive = u.BlnActive
@@ -94,7 +89,7 @@ namespace Prestadito.Security.API.Controller
                 Id = u.Id,
                 StrDOI = u.StrDOI,
                 StrRolId = u.StrRolId,
-                BlnRegisterComplete = u.BlnRegisterComplete,
+                BlnEmailValitated = u.BlnEmailValitated,
                 StrEmail = u.StrEmail,
                 StrStatusId = u.StrStatusId,
                 BlnActive = u.BlnActive
@@ -108,12 +103,6 @@ namespace Prestadito.Security.API.Controller
         {
             ResponseModel<UserModel> responseModel;
 
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                responseModel = ResponseModel<UserModel>.GetResponse("Id is empty");
-                return Results.BadRequest(responseModel);
-            }
-
             Expression<Func<UserEntity, bool>> filter = f => f.Id == id;
             var entity = await userRepository.GetAsync(filter);
             if (entity is null)
@@ -124,10 +113,9 @@ namespace Prestadito.Security.API.Controller
 
             var userModelItem = new UserModel
             {
-                Id = entity.Id,
                 StrDOI = entity.StrDOI,
                 StrRolId = entity.StrRolId,
-                BlnRegisterComplete = entity.BlnRegisterComplete,
+                BlnEmailValitated = entity.BlnEmailValitated,
                 StrEmail = entity.StrEmail,
                 StrStatusId = entity.StrStatusId,
                 BlnActive = entity.BlnActive
@@ -137,7 +125,7 @@ namespace Prestadito.Security.API.Controller
             return Results.Json(responseModel);
         }
 
-        public async ValueTask<IResult> UpdateUser(UpdateUserDTO dto)
+        public async ValueTask<IResult> UpdateUser(UpdateUserRequest dto)
         {
             ResponseModel<UserModel> responseModel;
 
@@ -151,7 +139,7 @@ namespace Prestadito.Security.API.Controller
 
             entity.StrDOI = dto.StrDOI;
             entity.StrPasswordHash = CryptoHelper.EncryptAES(dto.StrPassword);
-            entity.BlnRegisterComplete = true;
+            entity.BlnEmailValitated = true;
             entity.StrRolId = dto.StrRolId;
 
             var isUserUpdated = await userRepository.ReplaceOneAsync(entity);
