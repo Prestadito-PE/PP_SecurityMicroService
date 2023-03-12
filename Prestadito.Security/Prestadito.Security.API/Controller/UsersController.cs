@@ -7,6 +7,7 @@ using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Application.Services.Interfaces;
 using Prestadito.Security.Application.Services.Utilities;
 using Prestadito.Security.Domain.MainModule.Entities;
+using Prestadito.Security.Infrastructure.Data.Constants;
 using System.Linq.Expressions;
 
 namespace Prestadito.Security.API.Controller
@@ -38,10 +39,10 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = entity.Id,
                 StrDOI = entity.StrDOI,
-                ObjRol = entity.ObjRol,
+                StrRolId = entity.StrRolId,
                 BlnRegisterComplete = entity.BlnRegisterComplete,
                 StrEmail = entity.StrEmail,
-                ObjStatus = entity.ObjStatus
+                StrStatusId = entity.StrStatusId
             };
 
             LoginResponseDTO loginResponseDTO = JWT.GenerateToken(userMap);
@@ -61,28 +62,14 @@ namespace Prestadito.Security.API.Controller
                 return Results.NotFound(responseModel);
             }
 
-            var rol = Mocks.GetRolByCode(dto.StrRolCode);
-            if (rol is null)
-            {
-                responseModel = ResponseModel<UserModel>.GetResponse("Rol not exist");
-                return Results.NotFound(responseModel);
-            }
-
-            var userStatus = Mocks.GetUserStatus("0");
-            if (userStatus is null)
-            {
-                responseModel = ResponseModel<UserModel>.GetResponse("UserStatus not exist");
-                return Results.NotFound(responseModel);
-            }
-
             var passwordHash = CryptoHelper.EncryptAES(dto.StrPassword);
             var entity = new UserEntity
             {
                 StrEmail = dto.StrEmail,
                 StrPasswordHash = passwordHash,
-                ObjRol = rol,
+                StrRolId = dto.StrRolId,
                 BlnRegisterComplete = false,
-                ObjStatus = userStatus,
+                StrStatusId = Constants.Parameter.UserStatus.STATUS_INCOMPLETE_INFORMATION,
                 DteCreatedAt = DateTime.UtcNow,
                 BlnActive = true
             };
@@ -98,7 +85,7 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = newUser.Id,
                 StrDOI = newUser.StrDOI,
-                ObjRol = rol,
+                StrRolId = newUser.StrRolId,
                 BlnActive = newUser.BlnActive
             };
             responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
@@ -116,10 +103,10 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = u.Id,
                 StrDOI = u.StrDOI,
-                ObjRol = u.ObjRol,
+                StrRolId = u.StrRolId,
                 BlnRegisterComplete = u.BlnRegisterComplete,
                 StrEmail = u.StrEmail,
-                ObjStatus = u.ObjStatus,
+                StrStatusId = u.StrStatusId,
                 BlnActive = u.BlnActive
             }).ToList();
 
@@ -138,10 +125,10 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = u.Id,
                 StrDOI = u.StrDOI,
-                ObjRol = u.ObjRol,
+                StrRolId = u.StrRolId,
                 BlnRegisterComplete = u.BlnRegisterComplete,
                 StrEmail = u.StrEmail,
-                ObjStatus = u.ObjStatus,
+                StrStatusId = u.StrStatusId,
                 BlnActive = u.BlnActive
             }).ToList();
 
@@ -171,10 +158,10 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = entity.Id,
                 StrDOI = entity.StrDOI,
-                ObjRol = entity.ObjRol,
+                StrRolId = entity.StrRolId,
                 BlnRegisterComplete = entity.BlnRegisterComplete,
                 StrEmail = entity.StrEmail,
-                ObjStatus = entity.ObjStatus,
+                StrStatusId = entity.StrStatusId,
                 BlnActive = entity.BlnActive
             };
 
@@ -194,25 +181,10 @@ namespace Prestadito.Security.API.Controller
                 return Results.NotFound(responseModel);
             }
 
-            var rol = Mocks.GetRolByCode(dto.StrRolCode);
-            if (rol is null)
-            {
-                responseModel = ResponseModel<UserModel>.GetResponse("Rol not exist");
-                return Results.NotFound(responseModel);
-            }
-
-            var userStatus = Mocks.GetUserStatus("0");
-            if (userStatus is null)
-            {
-                responseModel = ResponseModel<UserModel>.GetResponse("UserStatus not exist");
-                return Results.NotFound(responseModel);
-            }
-
             entity.StrDOI = dto.StrDOI;
-            entity.StrPasswordHash = Hash256.Encrypt(dto.StrPassword);
+            entity.StrPasswordHash = CryptoHelper.EncryptAES(dto.StrPassword);
             entity.BlnRegisterComplete = true;
-            entity.ObjStatus = userStatus;
-            entity.ObjRol = rol;
+            entity.StrRolId = dto.StrRolId;
 
             var isUserUpdated = await userRepository.UpdateOneAsync(entity);
 
@@ -226,7 +198,7 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = entity.Id,
                 StrDOI = entity.StrDOI,
-                ObjRol = rol,
+                StrRolId = entity.StrRolId,
                 BlnActive = entity.BlnActive
             };
             responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
@@ -257,7 +229,7 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = entity.Id,
                 StrDOI = entity.StrDOI,
-                ObjRol = entity.ObjRol,
+                StrRolId = entity.StrRolId,
                 BlnActive = entity.BlnActive
             };
             responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);
@@ -287,7 +259,7 @@ namespace Prestadito.Security.API.Controller
             {
                 Id = entity.Id,
                 StrDOI = entity.StrDOI,
-                ObjRol = entity.ObjRol,
+                StrRolId = entity.StrRolId,
                 BlnActive = entity.BlnActive
             };
             responseModel = ResponseModel<UserModel>.GetResponse(userModelItem);

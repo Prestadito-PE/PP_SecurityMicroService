@@ -13,7 +13,7 @@ namespace Prestadito.Security.Application.Manager.Validators
             RuleFor(x => x.StrPassword)
                 .NotEmpty().WithMessage("{PropertyName} is empty");
 
-            RuleFor(x => x.StrRolCode)
+            RuleFor(x => x.StrRolId)
                 .NotEmpty().WithMessage("{PropertyName} is empty");
         }
     }
@@ -31,7 +31,7 @@ namespace Prestadito.Security.Application.Manager.Validators
             RuleFor(x => x.StrPassword)
                 .NotEmpty().WithMessage("{PropertyName} is empty");
 
-            RuleFor(x => x.StrRolCode)
+            RuleFor(x => x.StrRolId)
                 .NotEmpty().WithMessage("{PropertyName} is empty");
         }
     }

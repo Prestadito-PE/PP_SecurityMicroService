@@ -22,8 +22,7 @@ namespace Prestadito.Security.Application.Services.Utilities
             {
                 new Claim("id", entity.Id),
                 new Claim("strDOI", entity.StrDOI),
-                new Claim("strCodeRol", entity.ObjRol.StrCode),
-                new Claim("strDescriptionRol", entity.ObjRol.StrDescription),
+                new Claim("strRolId", entity.StrRolId),
                 new Claim("strEmail", entity.StrEmail)
             };
 
