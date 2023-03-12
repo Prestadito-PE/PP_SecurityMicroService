@@ -1,4 +1,4 @@
-﻿namespace Prestadito.Security.Application.Dto.Util
+﻿namespace Prestadito.Security.Infrastructure.Data.Utilities
 {
     public class EncryptConstants
     {

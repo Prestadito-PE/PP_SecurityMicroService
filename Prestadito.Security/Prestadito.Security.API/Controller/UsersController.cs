@@ -1,13 +1,11 @@
-﻿using Prestadito.Security.Application.Dto.Login;
-using Prestadito.Security.Application.Dto.User;
-using Prestadito.Security.Application.Dto.Util;
+﻿using Prestadito.Security.Application.Dto.User;
 using Prestadito.Security.Application.Manager.Interfaces;
 using Prestadito.Security.Application.Manager.Models;
 using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Application.Services.Interfaces;
-using Prestadito.Security.Application.Services.Utilities;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Constants;
+using Prestadito.Security.Infrastructure.Data.Utilities;
 using System.Linq.Expressions;
 
 namespace Prestadito.Security.API.Controller
@@ -15,39 +13,10 @@ namespace Prestadito.Security.API.Controller
     public class UsersController : IUsersController
     {
         private readonly IUserRepository userRepository;
+
         public UsersController(IDataService dataService)
         {
             userRepository = dataService.Users;
-        }
-
-        public async ValueTask<IResult> Login(LoginDTO dto)
-        {
-            ResponseModel<LoginResponseDTO> responseModel;
-
-            var passwordHash = CryptoHelper.EncryptAES(dto.StrPassword);
-            Expression<Func<UserEntity, bool>> filter = f => f.StrEmail == dto.StrEmail && f.StrPasswordHash == passwordHash;
-
-            var entity = await userRepository.GetAsync(filter);
-
-            if (entity is null)
-            {
-                responseModel = ResponseModel<LoginResponseDTO>.GetResponse("User not exist");
-                return Results.NotFound(responseModel);
-            }
-
-            UserModel userMap = new()
-            {
-                Id = entity.Id,
-                StrDOI = entity.StrDOI,
-                StrRolId = entity.StrRolId,
-                BlnRegisterComplete = entity.BlnRegisterComplete,
-                StrEmail = entity.StrEmail,
-                StrStatusId = entity.StrStatusId
-            };
-
-            LoginResponseDTO loginResponseDTO = JWT.GenerateToken(userMap);
-            responseModel = ResponseModel<LoginResponseDTO>.GetResponse(loginResponseDTO);
-            return Results.Json(responseModel);
         }
 
         public async ValueTask<IResult> CreateUser(CreateUserDTO dto, string path)
@@ -69,8 +38,7 @@ namespace Prestadito.Security.API.Controller
                 StrPasswordHash = passwordHash,
                 StrRolId = dto.StrRolId,
                 BlnRegisterComplete = false,
-                StrStatusId = Constants.Parameter.UserStatus.STATUS_INCOMPLETE_INFORMATION,
-                DteCreatedAt = DateTime.UtcNow,
+                StrStatusId = ConstantSettings.Parameter.UserStatus.STATUS_INCOMPLETE_INFORMATION,
                 BlnActive = true
             };
 
@@ -186,7 +154,7 @@ namespace Prestadito.Security.API.Controller
             entity.BlnRegisterComplete = true;
             entity.StrRolId = dto.StrRolId;
 
-            var isUserUpdated = await userRepository.UpdateOneAsync(entity);
+            var isUserUpdated = await userRepository.ReplaceOneAsync(entity);
 
             if (!isUserUpdated)
             {
@@ -218,7 +186,7 @@ namespace Prestadito.Security.API.Controller
             }
 
             entity.BlnActive = false;
-            var isUserUpdated = await userRepository.UpdateOneAsync(entity);
+            var isUserUpdated = await userRepository.ReplaceOneAsync(entity);
             if (!isUserUpdated)
             {
                 responseModel = ResponseModel<UserModel>.GetResponse("User not deleted");

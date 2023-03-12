@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Prestadito.Security.Application.Dto.Login;
 using Prestadito.Security.Application.Dto.User;
 using Prestadito.Security.Application.Manager.Interfaces;
 
@@ -12,13 +11,7 @@ namespace Prestadito.Security.Application.Manager.Endpoints
         readonly static string collection = "users";
         public static WebApplication UseUserEndpoints(this WebApplication app, string basePath)
         {
-            string path = string.Format("{0}/{1}", basePath, collection);
-
-            app.MapPost(path + "/login",
-                async (LoginDTO dto, IUsersController controller) =>
-                {
-                    return await controller.Login(dto);
-                });
+            string path = $"{basePath}/{collection}";
 
             app.MapPost(path,
                 async (IValidator<CreateUserDTO> validator, CreateUserDTO dto, IUsersController controller) =>
@@ -28,11 +21,11 @@ namespace Prestadito.Security.Application.Manager.Endpoints
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
-                    return await controller.CreateUser(dto, string.Format("~/{0}", path));
+                    return await controller.CreateUser(dto, $"~{path}");
                 });
 
             app.MapGet(path + "/all",
-                async (IUsersController controller) =>
+                async (IUsersController controller, HttpContext httpContext) =>
                 {
                     return await controller.GetAllUsers();
                 });

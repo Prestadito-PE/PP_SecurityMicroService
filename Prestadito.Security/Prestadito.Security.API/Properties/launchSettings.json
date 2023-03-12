@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "API": {
+    "Prestadito.Security.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

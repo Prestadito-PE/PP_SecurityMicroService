@@ -15,6 +15,12 @@ namespace Prestadito.Security.Application.Services.Repositories
             collection = database.GetCollection<UserEntity>(CollectionsName.Users);
         }
 
+        public async ValueTask<bool> DeleteOneAsync(Expression<Func<UserEntity, bool>> filter)
+        {
+            var result = await collection.DeleteOneAsync(filter);
+            return result.IsAcknowledged;
+        }
+
         public async ValueTask<List<UserEntity>> GetAllAsync(Expression<Func<UserEntity, bool>> filter)
         {
             var result = await collection.FindAsync(filter);
@@ -33,15 +39,9 @@ namespace Prestadito.Security.Application.Services.Repositories
             return entity;
         }
 
-        public async ValueTask<bool> UpdateOneAsync(UserEntity entity)
+        public async ValueTask<bool> ReplaceOneAsync(UserEntity entity)
         {
             var result = await collection.ReplaceOneAsync(u => u.Id == entity.Id, entity);
-            return result.IsAcknowledged;
-        }
-
-        public async ValueTask<bool> DeleteOneAsync(Expression<Func<UserEntity, bool>> filter)
-        {
-            var result = await collection.DeleteOneAsync(filter);
             return result.IsAcknowledged;
         }
     }

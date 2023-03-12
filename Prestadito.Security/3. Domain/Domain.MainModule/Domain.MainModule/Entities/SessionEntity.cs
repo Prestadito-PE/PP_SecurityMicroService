@@ -1,24 +1,24 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Prestadito.Security.Domain.MainModule.Core;
 
 namespace Prestadito.Security.Domain.MainModule.Entities
 {
-    public class SessionEntity
+    public class SessionEntity : BaseAuditEntity
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
         [BsonElement("strUserId")]
         public string StrUserId { get; set; } = null!;
         [BsonElement("strIP")]
         public string StrIP { get; set; } = null!;
-        [BsonElement("objDevice")]
-        public ParameterEntity ObjDevice { get; set; } = null!;
-        [BsonElement("objStatusLogin")]
-        public ParameterEntity ObjStatusLogin { get; set; } = null!;
+        [BsonElement("strDeviceName")]
+        public string StrDeviceName { get; set; } = null!;
         [BsonElement("intAttempts")]
         public int IntAttempts { get; set; }
+        [BsonElement("strComment")]
+        public string StrComment { get; set; } = null!;
+        [BsonElement("strEnteredPasswordHash")]
+        public string StrEnteredPasswordHash { get; set; } = null!;
         [BsonElement("dteLogin")]
-        public DateTime DteLogin { get; set; }
+        public DateTime DteLogin { get; set; } = DateTime.UtcNow;
     }
 }

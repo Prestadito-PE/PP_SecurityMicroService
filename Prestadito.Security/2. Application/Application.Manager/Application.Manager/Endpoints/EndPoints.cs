@@ -9,6 +9,8 @@ namespace Prestadito.Security.Application.Manager.Endpoints
         {
             app.UseHealthEndpoints();
             app.UseUserEndpoints(basePath);
+            app.UseSessionEndpoints(basePath);
+
             return app;
         }
     }

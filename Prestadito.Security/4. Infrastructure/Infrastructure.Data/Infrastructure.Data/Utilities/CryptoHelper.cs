@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Prestadito.Security.Application.Dto.Util
+namespace Prestadito.Security.Infrastructure.Data.Utilities
 {
     public class CryptoHelper
     {
@@ -25,7 +25,7 @@ namespace Prestadito.Security.Application.Dto.Util
                 Charsarr[i] = characters[random.Next(characters.Length)];
             }
 
-            var resultString = new String(Charsarr);
+            var resultString = new string(Charsarr);
             return resultString;
         }
         public static string EncryptAES(string textPLain)
