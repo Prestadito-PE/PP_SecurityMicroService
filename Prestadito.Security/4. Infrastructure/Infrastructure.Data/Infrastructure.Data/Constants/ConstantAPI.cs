@@ -14,5 +14,16 @@
             public const string PARAMETER_MAX_ATTEMPS_CODE = "0201";
         }
         #endregion
+        #region Endpoint
+        public class Endpoint
+        {
+            public class Tag
+            {
+                public const string USERS = "USERS";
+                public const string SESSIONS = "SESSIONS";
+                public const string INTERSERVICE = "INTERSERVICE";
+            }
+        }
+        #endregion
     }
 }

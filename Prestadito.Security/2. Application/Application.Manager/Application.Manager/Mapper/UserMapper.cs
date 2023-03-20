@@ -1,4 +1,5 @@
 ﻿using Prestadito.Security.Application.Dto.User.CreateUser;
+using Prestadito.Security.Application.Dto.User.DisableUser;
 using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Domain.MainModule.Entities;
@@ -14,7 +15,7 @@ namespace Prestadito.Security.Application.Manager.Mapper
                 StrId = entity.Id,
                 StrDOI = entity.StrDOI,
                 StrRolId = entity.StrRolId,
-                BlnEmailValitated = entity.BlnEmailValitated,
+                BlnEmailValidated = entity.BlnEmailValidated,
                 StrEmail = entity.StrEmail,
                 StrStatusId = entity.StrStatusId
             };
@@ -28,7 +29,7 @@ namespace Prestadito.Security.Application.Manager.Mapper
                 StrEmail = entity.StrEmail,
                 StrRolId = entity.StrRolId,
                 StrDOI = entity.StrDOI,
-                BlnEmailValitated = entity.BlnEmailValitated,
+                BlnEmailValidated = entity.BlnEmailValidated,
                 StrStatusId = entity.StrStatusId
             };
         }
@@ -41,7 +42,33 @@ namespace Prestadito.Security.Application.Manager.Mapper
                 StrEmail = entity.StrEmail,
                 StrRolId = entity.StrRolId,
                 StrDOI = entity.StrDOI,
-                BlnEmailValitated = entity.BlnEmailValitated,
+                BlnEmailValidated = entity.BlnEmailValidated,
+                StrStatusId = entity.StrStatusId
+            };
+        }
+
+        public static DisableUserResponse MapDisableUser(this UserEntity entity)
+        {
+            return new DisableUserResponse
+            {
+                StrId = entity.Id,
+                StrDOI = entity.StrDOI,
+                StrRolId = entity.StrRolId,
+                BlnEmailValidated = entity.BlnEmailValidated,
+                StrEmail = entity.StrEmail,
+                StrStatusId = entity.StrStatusId
+            };
+        }
+
+        public static DeleteUserResponse MapDeleteUser(this UserEntity entity)
+        {
+            return new DeleteUserResponse
+            {
+                StrId = entity.Id,
+                StrDOI = entity.StrDOI,
+                StrRolId = entity.StrRolId,
+                BlnEmailValidated = entity.BlnEmailValidated,
+                StrEmail = entity.StrEmail,
                 StrStatusId = entity.StrStatusId
             };
         }

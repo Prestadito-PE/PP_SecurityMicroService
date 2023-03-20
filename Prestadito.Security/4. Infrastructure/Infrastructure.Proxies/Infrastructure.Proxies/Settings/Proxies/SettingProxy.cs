@@ -29,9 +29,8 @@ namespace Prestadito.Security.Infrastructure.Proxies.Settings.Proxies
                 var responseModel = await response.Content.ReadFromJsonAsync<ResponseProxyModel<ParameterModel>>();
                 return responseModel;
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-
                 return null;
             }
         }

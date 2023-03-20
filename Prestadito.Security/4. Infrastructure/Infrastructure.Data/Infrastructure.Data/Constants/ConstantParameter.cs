@@ -8,7 +8,6 @@
             public class UserStatus
             {
                 public const string STATUS_ACTIVE = "01";
-                public const string STATUS_LOCK_ATTEMPTS = "03";
             }
         }
         #endregion

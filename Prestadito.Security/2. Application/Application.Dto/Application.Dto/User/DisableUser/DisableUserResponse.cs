@@ -1,6 +1,6 @@
-﻿namespace Prestadito.Security.Application.Dto.User.GetUserById
+﻿namespace Prestadito.Security.Application.Dto.User.DisableUser
 {
-    public class GetUserByIdResponse
+    public class DisableUserResponse
     {
         public string StrId { get; set; } = string.Empty;
         public string StrDOI { get; set; } = string.Empty;

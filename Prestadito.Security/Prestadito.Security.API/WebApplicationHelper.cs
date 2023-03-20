@@ -1,14 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
-using Prestadito.Security.API.Controller;
-using Prestadito.Security.Application.Manager.Endpoints;
+using Prestadito.Security.API.Endpoints;
 using Prestadito.Security.Application.Manager.Extensions;
-using Prestadito.Security.Application.Manager.Interfaces;
-using Prestadito.Security.Application.Services.Extensions;
-using Prestadito.Security.Application.Services.Interfaces;
-using Prestadito.Security.Application.Services.Services;
-using Prestadito.Security.Application.Services.Utilities;
+using Prestadito.Security.Infrastructure.Data.Extensions;
 using Prestadito.Security.Infrastructure.Data.Settings;
-using Prestadito.Security.Infrastructure.MainModule.Extensions;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Extensions;
 
 namespace Prestadito.Security.API
@@ -21,16 +15,10 @@ namespace Prestadito.Security.API
 
             var configuration = provider.GetRequiredService<IConfiguration>();
 
-            builder.Services.AddMongoDbContext(configuration);
+            builder.Services.AddDBServices(configuration);
             builder.Services.AddProxies();
-
             builder.Services.AddJWTSettings(configuration);
-
-            builder.Services.AddScoped<IJWTHelper, JWTHelper>();
-            builder.Services.AddScoped<IDataService, DataService>();
-            builder.Services.AddScoped<IUsersController, UsersController>();
-            builder.Services.AddScoped<ISessionsController, SessionsController>();
-
+            builder.Services.AddSecurityControllers();
             builder.Services.AddValidators();
 
             builder.Services.AddEndpointsApiExplorer();
@@ -66,11 +54,11 @@ namespace Prestadito.Security.API
         {
             //if (app.Environment.IsDevelopment())
             //{
-                app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("v1/swagger.json", "Prestadito.Micro.Security.API");
-                });
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("v1/swagger.json", "Prestadito.Micro.Security.API");
+            });
             //}
 
             app.UseSecurityEndpoints();

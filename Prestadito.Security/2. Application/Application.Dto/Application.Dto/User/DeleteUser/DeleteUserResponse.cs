@@ -1,6 +1,6 @@
 ﻿namespace Prestadito.Security.Application.Dto.User.GetUserById
 {
-    public class GetUserByIdResponse
+    public class DeleteUserResponse
     {
         public string StrId { get; set; } = string.Empty;
         public string StrDOI { get; set; } = string.Empty;

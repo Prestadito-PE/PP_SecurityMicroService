@@ -1,32 +1,33 @@
 ﻿using MongoDB.Driver;
+using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;
+using Prestadito.Security.Infrastructure.Data.Utilities;
 
 namespace Prestadito.Security.Infrastructure.Data.Context
 {
-    public class MongoContext
+    public class MongoContext : IMongoContext
     {
-        private readonly MongoClient client;
         private readonly IMongoDatabase database;
 
         public MongoContext(ISecurityDBSettings settings)
         {
-            client = new MongoClient(settings.ConnectionURI);
+            var client = new MongoClient(settings.ConnectionURI);
             database = client.GetDatabase(settings.DatabaseName);
         }
 
-        public IMongoClient Client
+        public IMongoCollection<UserEntity> Users
         {
             get
             {
-                return client;
+                return database.GetCollection<UserEntity>(CollectionsName.colUsers);
             }
         }
 
-        public IMongoDatabase Database
+        public IMongoCollection<SessionEntity> Sessions
         {
             get
             {
-                return database;
+                return database.GetCollection<SessionEntity>(CollectionsName.colSessions);
             }
         }
     }
