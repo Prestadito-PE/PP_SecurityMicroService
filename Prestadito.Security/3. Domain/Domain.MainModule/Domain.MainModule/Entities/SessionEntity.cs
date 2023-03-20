@@ -4,7 +4,7 @@ using Prestadito.Security.Domain.MainModule.Core;
 
 namespace Prestadito.Security.Domain.MainModule.Entities
 {
-    public class SessionEntity : BaseAuditEntity
+    public class SessionEntity : AuditEntity
     {
         [BsonElement("strUserId")]
         public string StrUserId { get; set; } = null!;

@@ -3,7 +3,7 @@ using Prestadito.Security.Application.Dto.Login;
 
 namespace Prestadito.Security.Application.Manager.Validators
 {
-    public class LoginValidator : AbstractValidator<LoginDTO>
+    public class LoginValidator : AbstractValidator<LoginRequest>
     {
         public LoginValidator()
         {
