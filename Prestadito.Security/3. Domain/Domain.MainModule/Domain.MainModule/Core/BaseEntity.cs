@@ -10,6 +10,6 @@ namespace Prestadito.Security.Domain.MainModule.Core
         public string? Id { get; set; }
 
         [BsonElement("blnActive")]
-        public bool BlnActive { get; set; }
+        public bool BlnActive { get; set; } = true;
     }
 }
