@@ -27,6 +27,7 @@ namespace Prestadito.Security.Application.Manager.Extensions
             services.AddScoped<IValidator<DeleteUserRequest>, DeleteUserValidator>();
 
             services.AddScoped<IValidator<LoginRequest>, LoginValidator>();
+           
             return services;
         }
 
@@ -34,7 +35,7 @@ namespace Prestadito.Security.Application.Manager.Extensions
         {
             services.AddScoped<IUsersController, UsersController>();
             services.AddScoped<ISessionsController, SessionsController>();
-
+            services.AddTransient<HashService>();
             return services;
         }
 

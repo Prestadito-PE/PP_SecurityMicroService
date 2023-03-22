@@ -37,6 +37,7 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
             string clave = key;
             MailMessage mail = new MailMessage();
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com", 587);
+            SmtpServer.UseDefaultCredentials = false;
             mail.From = new System.Net.Mail.MailAddress(correoSend);
             mail.To.Add(correoDestino);
 
@@ -44,6 +45,7 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
             mail.Body = body;
             mail.IsBodyHtml = true;
             SmtpServer.Port = 587;
+            
             SmtpServer.Credentials = new System.Net.NetworkCredential(correoSend, clave);
             SmtpServer.EnableSsl = true;
             SmtpServer.Send(mail);
