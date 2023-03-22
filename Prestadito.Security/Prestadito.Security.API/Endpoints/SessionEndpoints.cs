@@ -1,12 +1,16 @@
 ﻿using FluentValidation;
+using Prestadito.Security.Application.Dto.Email;
 using Prestadito.Security.Application.Dto.Login;
 using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Infrastructure.Data.Utilities;
 
 namespace Prestadito.Security.API.Endpoints
 {
     public static class SessionEndpoints
     {
         readonly static string collection = "sessions";
+        public static readonly HashService hashService;
+
         public static WebApplication UseSessionEndpoints(this WebApplication app, string basePath)
         {
             string path = $"{basePath}/{collection}";
@@ -19,6 +23,7 @@ namespace Prestadito.Security.API.Endpoints
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
+
                     return await controller.Login(request, httpContext);
                 });
 
