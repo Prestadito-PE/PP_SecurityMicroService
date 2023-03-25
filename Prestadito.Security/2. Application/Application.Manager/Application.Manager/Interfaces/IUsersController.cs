@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Prestadito.Security.Application.Dto.User.CreateUser;
+using Prestadito.Security.Application.Dto.User.DeleteUser;
 using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Dto.User.UpdateUser;
 

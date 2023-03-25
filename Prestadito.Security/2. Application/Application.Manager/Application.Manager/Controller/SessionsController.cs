@@ -205,13 +205,18 @@ namespace Prestadito.Security.Application.Manager.Controller
             string templateKey = "templateKey_Create";
             var obj = new EmailData<RecuperarClaveEmail>
             {
-                EmailType = 2,
+                EmailType = 1,
                 EmailList = correos,
                 Model = message,
                 HtmlTemplateName = Constantes.CrearUsuario
             };
 
-            await _hashService.EnviarCorreoAsync(obj, message, templateKey);
+            var parameters = new Dictionary<string, string>
+            {
+                { "Asunto", "Bienvenido" }
+            };
+
+            await _hashService.EnviarCorreoAsync(obj, message, templateKey, parameters);
 
 
             //Fin Email

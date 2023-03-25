@@ -1,12 +1,13 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Manager.Interfaces;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Prestadito.Security.Infrastructure.Data.Utilities
+namespace Prestadito.Security.Application.Manager.Utilities
 {
     public class JWTHelper : IJWTHelper
     {

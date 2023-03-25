@@ -1,4 +1,4 @@
-﻿namespace Prestadito.Security.Application.Dto.User.GetUserById
+﻿namespace Prestadito.Security.Application.Dto.User.DeleteUser
 {
     public class DeleteUserRequest
     {
