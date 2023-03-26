@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson.IO;
 using Prestadito.Security.Application.Dto.Email;
 using RazorEngine;
@@ -22,11 +23,14 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
     {
         private readonly string _pathRoot;
         private readonly IConfiguration configuration;
-        public HashService(IServiceProvider serviceProvider, IServiceScopeFactory factory)
+        private readonly ILogger<HashService> _logger;
+
+        public HashService(IServiceProvider serviceProvider, IServiceScopeFactory factory, ILogger<HashService> logger)
         {
             var env = serviceProvider.GetService<IHostingEnvironment>();
             _pathRoot = $"{env.ContentRootPath}{Constantes.PathFinanciamientoTemplate}";
             configuration = factory.CreateScope().ServiceProvider.GetRequiredService<IConfiguration>();
+            _logger = logger;
         }
 
         public async Task<bool> EnviarCorreoAsync(EmailViewModel oCorreo/*RecuperarClaveEmail message, string templateKey, Dictionary<string, string> parameters*/)
@@ -64,8 +68,8 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
 
                 try
                 {
-                    MailMessage oMail = new MailMessage();
-                    SmtpClient oSMTP = new SmtpClient();
+                    MailMessage? oMail = new();
+                    SmtpClient? oSMTP = new();
                     string error = string.Empty;
                     string resultado = string.Empty;
                     try
@@ -146,8 +150,9 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
                         oSMTP.Dispose();
                         enviado = true;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        _logger.LogError($"Error en método EnviarCorreo: {e}");
                         enviado = false;
                     }
                     finally
@@ -156,15 +161,18 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
                         oSMTP = null;
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    _logger.LogError($"Error en método EnviarCorreo: {e}");
                     enviado = false;
                 }
             }
-            catch(Exception)
+            catch (Exception e)
             {
+                _logger.LogError($"Error en método EnviarCorreo: {e}");
                 enviado = false;
             }
+            _logger.LogError("Correo enviado satisfactoriamente");
             return enviado;
         }
 

@@ -1,6 +1,9 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using Prestadito.Security.API.Endpoints;
 using Prestadito.Security.Application.Manager.Extensions;
+using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Infrastructure.Data.Extensions;
 using Prestadito.Security.Infrastructure.Data.Settings;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Extensions;
@@ -59,6 +62,7 @@ namespace Prestadito.Security.API
             {
                 options.SwaggerEndpoint("v1/swagger.json", "Prestadito.Micro.Security.API");
             });
+            app.Services.GetRequiredService<ILoggerFactory>().AddSyslog(app.Configuration.GetValue<string>("Papertrail:host"), app.Configuration.GetValue<int>("Papertrail:port"));
             //}
 
             app.UseSecurityEndpoints();

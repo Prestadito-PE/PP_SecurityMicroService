@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Amazon.Runtime.Internal.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using Prestadito.Security.Application.Dto.Email;
 using Prestadito.Security.Application.Dto.Login;
@@ -12,6 +15,7 @@ using Prestadito.Security.Infrastructure.Data.Utilities;
 using Prestadito.Security.Infrastructure.Proxies.Settings.DTO.Parameters;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Interfaces;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace Prestadito.Security.Application.Manager.Controller
 {
@@ -22,16 +26,17 @@ namespace Prestadito.Security.Application.Manager.Controller
         private readonly IJWTHelper _jwtHelper;
         private readonly ISettingProxy _settingProxy;
         private readonly HashService _hashService;
+        private readonly ILogger<SessionsController> _logger;
 
         public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper _jwtHelper, ISettingProxy _settingProxy,
-            HashService hashService)
+            HashService hashService, ILogger<SessionsController> logger)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             this._jwtHelper = _jwtHelper;
             this._settingProxy = _settingProxy;
             this._hashService = hashService;
-         
+            _logger = logger;
         }
 
         public async ValueTask<IResult> DeleteSession(string id)
@@ -43,6 +48,7 @@ namespace Prestadito.Security.Application.Manager.Controller
             if (entity is null)
             {
                 responseModel = ResponseModel<SessionEntity>.GetResponse("Session not exist");
+                _logger.LogError($"Error en método DeleteSession de SessionController: {JsonSerializer.Serialize(responseModel)}");
                 return Results.NotFound(responseModel);
             }
 
@@ -50,6 +56,7 @@ namespace Prestadito.Security.Application.Manager.Controller
             if (!isSessionDeleted)
             {
                 responseModel = ResponseModel<SessionEntity>.GetResponse("Session not deleted");
+                _logger.LogError($"Error en método DeleteSession de SessionController: {JsonSerializer.Serialize(responseModel)}");
                 return Results.UnprocessableEntity(responseModel);
             }
 
@@ -65,6 +72,7 @@ namespace Prestadito.Security.Application.Manager.Controller
                 DteLogin = entity.DteLogin
             };
             responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItem);
+            _logger.LogError($"Error en método DeleteSession de SessionController: {JsonSerializer.Serialize(responseModel)}");
             return Results.Json(responseModel);
         }
 
@@ -88,134 +96,149 @@ namespace Prestadito.Security.Application.Manager.Controller
             }).ToList();
 
             responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItems);
+            _logger.LogError($"Error en método GetAllSessions de SessionController: {JsonSerializer.Serialize(responseModel)}");
             return Results.Json(responseModel);
         }
 
         public async ValueTask<IResult> Login(LoginRequest request, HttpContext httpContext)
         {
-            ResponseModel<LoginResponse> responseModel;
-            int maxAttempts = ConstantSettings.Settings.Parameter.LoginAttempts.LOGIN_MAX_ATTEMPTS;
-            int userLoginAttempts = 0;
-            var passwordHash = CryptoHelper.EncryptAES(request.StrPassword);
-            string clientIP = httpContext.Connection.RemoteIpAddress is null ? "" : httpContext.Connection.RemoteIpAddress.ToString();
-
-            Expression<Func<UserEntity, bool>> filterUser = f => f.StrEmail == request.StrEmail;
-            var entityUser = await _userRepository.GetSingleAsync(filterUser);
-            if (entityUser is null)
+            try
             {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
-                return Results.NotFound(responseModel);
-            }
+                ResponseModel<LoginResponse> responseModel;
+                int maxAttempts = ConstantSettings.Settings.Parameter.LoginAttempts.LOGIN_MAX_ATTEMPTS;
+                int userLoginAttempts = 0;
+                var passwordHash = CryptoHelper.EncryptAES(request.StrPassword);
+                string clientIP = httpContext.Connection.RemoteIpAddress is null ? "" : httpContext.Connection.RemoteIpAddress.ToString();
 
-            if (!entityUser.BlnActive)
-            {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_NOT_ACTIVE);
-                return Results.UnprocessableEntity(responseModel);
-            }
-
-            if (entityUser.BlnLockByAttempts)
-            {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
-                return Results.UnprocessableEntity(responseModel);
-            }
-
-            if (entityUser.StrPasswordHash != passwordHash)
-            {
-                var parameter = await _settingProxy.GetParameterByCode(
-                    new GetParameterByCodeDTO
-                    {
-                        StrCode = ConstantAPI.MicroSetting.PARAMETER_MAX_ATTEMPS_CODE
-                    });
-
-                if (parameter is not null && !parameter.Error)
+                Expression<Func<UserEntity, bool>> filterUser = f => f.StrEmail == request.StrEmail;
+                var entityUser = await _userRepository.GetSingleAsync(filterUser);
+                if (entityUser is null)
                 {
-                    if (int.TryParse(parameter.Item.StrValue, out int tempValue))
-                    {
-                        maxAttempts = tempValue;
-                    }
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
+                    _logger.LogError($"Error en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
+                    return Results.NotFound(responseModel);
                 }
 
-                #region CODE REFACTOR
-                Expression<Func<SessionEntity, bool>> filterSessions = f => f.StrUserId == entityUser.Id;
-                var sort = Builders<SessionEntity>.Sort.Descending(x => x.DteLogin);
-
-                var entitySession = await _sessionRepository.GetSingleFindOptionsAsync(filterSessions, null);
-                #endregion
-                if (entitySession is not null)
+                if (!entityUser.BlnActive)
                 {
-                    userLoginAttempts = entitySession.IntAttempts;
-                }
-
-                if (userLoginAttempts + 1 >= maxAttempts)
-                {
-                    entityUser.BlnLockByAttempts = true;
-                    await _userRepository.UpdateOneAsync(filterUser, null);
-                }
-
-                var entitySessionLoginError = new SessionEntity
-                {
-                    StrUserId = entityUser.Id,
-                    StrIP = clientIP,
-                    StrDeviceName = request.StrDeviceName,
-                    IntAttempts = userLoginAttempts + 1,
-                    StrComment = ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS,
-                    StrEnteredPasswordHash = passwordHash,
-                    StrCreateUser = ConstantAPI.System.SYSTEM_USER
-                };
-                await _sessionRepository.InsertOneAsync(entitySessionLoginError);
-
-
-
-               
-
-                if (entitySessionLoginError.IntAttempts >= maxAttempts)
-                {
-                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_NOT_ACTIVE);
+                    _logger.LogError($"Error en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
                     return Results.UnprocessableEntity(responseModel);
                 }
 
+                if (entityUser.BlnLockByAttempts)
+                {
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
+                    _logger.LogError($"Error en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
+                    return Results.UnprocessableEntity(responseModel);
+                }
 
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
-                return Results.UnprocessableEntity(responseModel);
-            }
+                if (entityUser.StrPasswordHash != passwordHash)
+                {
+                    var parameter = await _settingProxy.GetParameterByCode(
+                        new GetParameterByCodeDTO
+                        {
+                            StrCode = ConstantAPI.MicroSetting.PARAMETER_MAX_ATTEMPS_CODE
+                        });
 
-            UserEntity userMap = new()
-            {
-                Id = entityUser.Id,
-                StrDOI = entityUser.StrDOI,
-                StrRolId = entityUser.StrRolId,
-                BlnEmailValidated = entityUser.BlnEmailValidated,
-                StrEmail = entityUser.StrEmail,
-                StrStatusId = entityUser.StrStatusId
-            };
+                    if (parameter is not null && !parameter.Error)
+                    {
+                        if (int.TryParse(parameter.Item.StrValue, out int tempValue))
+                        {
+                            maxAttempts = tempValue;
+                        }
+                    }
 
-            //Email
-            EmailViewModel objEmail = new EmailViewModel
-            {
-                correo = request.StrEmail,
-                correocc = request.StrEmail,
-                correocco = request.StrEmail,
-                parametros = new Dictionary<string, string>
+                    #region CODE REFACTOR
+                    Expression<Func<SessionEntity, bool>> filterSessions = f => f.StrUserId == entityUser.Id;
+                    var sort = Builders<SessionEntity>.Sort.Descending(x => x.DteLogin);
+
+                    var entitySession = await _sessionRepository.GetSingleFindOptionsAsync(filterSessions, null);
+                    #endregion
+                    if (entitySession is not null)
+                    {
+                        userLoginAttempts = entitySession.IntAttempts;
+                    }
+
+                    if (userLoginAttempts + 1 >= maxAttempts)
+                    {
+                        entityUser.BlnLockByAttempts = true;
+                        await _userRepository.UpdateOneAsync(filterUser, null);
+                    }
+
+                    var entitySessionLoginError = new SessionEntity
+                    {
+                        StrUserId = entityUser.Id,
+                        StrIP = clientIP,
+                        StrDeviceName = request.StrDeviceName,
+                        IntAttempts = userLoginAttempts + 1,
+                        StrComment = ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS,
+                        StrEnteredPasswordHash = passwordHash,
+                        StrCreateUser = ConstantAPI.System.SYSTEM_USER
+                    };
+                    await _sessionRepository.InsertOneAsync(entitySessionLoginError);
+
+
+                    if (entitySessionLoginError.IntAttempts >= maxAttempts)
+                    {
+                        responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
+                        _logger.LogError($"Error en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
+                        return Results.UnprocessableEntity(responseModel);
+                    }
+
+
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
+                    _logger.LogError($"Error en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
+                    return Results.UnprocessableEntity(responseModel);
+                }
+
+                UserEntity userMap = new()
+                {
+                    Id = entityUser.Id,
+                    StrDOI = entityUser.StrDOI,
+                    StrRolId = entityUser.StrRolId,
+                    BlnEmailValidated = entityUser.BlnEmailValidated,
+                    StrEmail = entityUser.StrEmail,
+                    StrStatusId = entityUser.StrStatusId
+                };
+
+                #region Email
+                _logger.LogInformation("Iniciando método de envío de correo");
+
+                EmailViewModel objEmail = new EmailViewModel
+                {
+                    correo = request.StrEmail,
+                    correocc = request.StrEmail,
+                    correocco = request.StrEmail,
+                    parametros = new Dictionary<string, string>
             {
                 { "Cliente", "Bienvenido" }
             },
-                asunto = "Te damos la bienvenida a Prestadito.PE",
-                plantilla = @"Content\RegistroUsuario.html",
+                    asunto = "Te damos la bienvenida a Prestadito.PE",
+                    plantilla = @"Content\RegistroUsuario.html",
 
-                correoUser = "prestaditope.peru@gmail.com",
-                correoPwd = "ntbapsuhcvyqtfqr",
-                displayName = "Prestadito PE",
-                host = "smtp.gmail.com",
-                puerto = "587"
-            };
+                    correoUser = "prestaditope.peru@gmail.com",
+                    correoPwd = "ntbapsuhcvyqtfqr",
+                    displayName = "Prestadito PE",
+                    host = "smtp.gmail.com",
+                    puerto = "587"
+                };
 
-           bool correoEnviado = await _hashService.EnviarCorreoAsync(objEmail);
+                bool correoEnviado = await _hashService.EnviarCorreoAsync(objEmail);
 
-            //Fin Email
+                _logger.LogInformation("Fin del método de envío de correo");
+                #endregion
 
-            LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
-            responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);
-            return Results.Json(responseModel);
+                LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
+                responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);
+                _logger.LogInformation($"Exito en método Login de SessionController: {JsonSerializer.Serialize(responseModel)}");
+                return Results.Json(responseModel);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error en método Login de SessionController: {e}");
+                throw;
+            }
         }
     }
 }
