@@ -1,7 +1,9 @@
 ﻿using Amazon.SecurityToken.Model;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.IO;
 using Prestadito.Security.Application.Dto.Email;
 using RazorEngine;
 using RazorEngine.Templating;
@@ -27,33 +29,152 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
             configuration = factory.CreateScope().ServiceProvider.GetRequiredService<IConfiguration>();
         }
 
-        public async Task EnviarCorreoAsync<T>(EmailData<T> obj, RecuperarClaveEmail message, string templateKey, Dictionary<string, string> parameters)
+        public async Task<bool> EnviarCorreoAsync(EmailViewModel oCorreo/*RecuperarClaveEmail message, string templateKey, Dictionary<string, string> parameters*/)
         {
+            bool enviado = false;
             try
             {
+                EmailResponseViewModel oEmailResponse = new EmailResponseViewModel();
+                oEmailResponse.Destinatarios = new List<string>();
+                oEmailResponse.DestinatariosCC = new List<string>();
+                oEmailResponse.DestinatariosCCO = new List<string>();
+                oEmailResponse.Parametros = new Dictionary<string, string>();
+                oEmailResponse.ListadoColumnas = new Dictionary<string, List<string>>();
+                oEmailResponse.ListadoFilas = new Dictionary<string, List<List<string>>>();
 
+                string[] correos = oCorreo.correo.Split(';');
+                string[] correosCC = oCorreo.correocc.Split(';');
+                string[] correosCCO = oCorreo.correocco.Split(';');
 
-                string correoOrigen = configuration.GetSection("EmailSettings").GetSection("CorreoEnvio").Value;
-                string key = configuration.GetSection("EmailSettings").GetSection("SecureKey").Value;
-                string ruta = $@"{_pathRoot}{obj.HtmlTemplateName}";
-                string html = System.IO.File.ReadAllText(ruta);
-                string body = Engine.Razor.RunCompile(html, $"{templateKey}", typeof(T), message);
-                string correoDestino = string.Join(',', obj.EmailList);
-                string clave = key;
-                MailMessage mail = new MailMessage(correoOrigen, correoDestino, parameters.First(x => x.Key == "Asunto").Value, body) { IsBodyHtml = true };
-                SmtpClient SmtpServer = new SmtpClient(configuration.GetSection("EmailSettings").GetSection("Smtp").Value)
+                foreach (var item in correos)
+                    oEmailResponse.Destinatarios.Add(item);
+
+                foreach (var item in correosCC)
+                    oEmailResponse.DestinatariosCC.Add(item);
+
+                foreach (var item in correosCCO)
+                    oEmailResponse.DestinatariosCCO.Add(item);
+
+                oEmailResponse.Parametros = oCorreo.parametros;
+                oEmailResponse.Plantilla = oCorreo.plantilla;
+
+                oEmailResponse.Asunto = oCorreo.asunto;
+                oEmailResponse.Correo = oCorreo.correoUser;
+                oEmailResponse.Contrasena = oCorreo.correoPwd;
+
+                try
                 {
-                    EnableSsl = Convert.ToBoolean(configuration.GetSection("EmailSettings").GetSection("SSLEmail").Value),
-                    Port = Convert.ToInt32(configuration.GetSection("EmailSettings").GetSection("Port").Value),
-                    Credentials = new NetworkCredential(correoOrigen, key)
-                };
-                SmtpServer.Send(mail);
-                SmtpServer.Dispose();
+                    MailMessage oMail = new MailMessage();
+                    SmtpClient oSMTP = new SmtpClient();
+                    string error = string.Empty;
+                    string resultado = string.Empty;
+                    try
+                    {
+                        string cuerpo = string.Empty;
+
+                        //Correos Destino
+                        foreach (string item in oEmailResponse.Destinatarios)
+                        {
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(item))
+                                {
+                                    var oMailAddres = new MailAddress(item);
+                                    oMail.To.Add(oMailAddres);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                enviado = false;
+                            }
+                        }
+
+                        //Correos CC
+                        foreach (string item in oEmailResponse.DestinatariosCC)
+                        {
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(item))
+                                {
+                                    var oMailAddres = new MailAddress(item);
+                                    oMail.CC.Add(oMailAddres);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                enviado = false;
+                            }
+                        }
+
+                        //Correos Ocultos
+                        foreach (string item in oEmailResponse.DestinatariosCCO)
+                        {
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(item))
+                                {
+                                    var oMailAddres = new MailAddress(item);
+                                    oMail.Bcc.Add(oMailAddres);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                enviado = false;
+                            }
+                        }
+                        string bodyMessage = string.Empty;
+                        using (var client = new WebClient())
+                        {
+                            client.Encoding = System.Text.Encoding.UTF8;
+                            bodyMessage = client.DownloadString($"{oCorreo.plantilla}");
+                        }
+                        string cMessage = string.Empty;
+                        if (oCorreo.parametros != null)
+                        {
+                            bodyMessage = TagReplace(oCorreo.parametros, bodyMessage);
+                        }
+
+                        oMail.Body = bodyMessage;
+                        oMail.IsBodyHtml = true;
+                        oMail.Subject = oCorreo.asunto;
+                        oMail.From = new MailAddress(oCorreo.correo, oCorreo.displayName);
+                        oSMTP.Host = oCorreo.host;
+                        oSMTP.Port = Convert.ToInt32(oCorreo.puerto);
+                        oSMTP.Credentials = new NetworkCredential(oCorreo.correoUser, oCorreo.correoPwd);
+                        oSMTP.EnableSsl = true;
+                        oSMTP.Send(oMail);
+                        oSMTP.Dispose();
+                        enviado = true;
+                    }
+                    catch (Exception)
+                    {
+                        enviado = false;
+                    }
+                    finally
+                    {
+                        oMail = null;
+                        oSMTP = null;
+                    }
+                }
+                catch (Exception)
+                {
+                    enviado = false;
+                }
             }
-            catch (Exception e)
+            catch(Exception)
             {
-                Console.WriteLine(e.Message);
+                enviado = false;
             }
+            return enviado;
+        }
+
+        private static string TagReplace(Dictionary<string, string> parametros, string bodyMessage)
+        {
+            foreach (var replacement in parametros)
+            {
+                bodyMessage = bodyMessage.Replace($"{{{replacement.Key}}}", replacement.Value);
+            }
+            return bodyMessage;
         }
     }
 }

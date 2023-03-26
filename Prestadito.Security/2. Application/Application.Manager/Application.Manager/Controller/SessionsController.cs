@@ -23,7 +23,6 @@ namespace Prestadito.Security.Application.Manager.Controller
         private readonly ISettingProxy _settingProxy;
         private readonly HashService _hashService;
 
-
         public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper _jwtHelper, ISettingProxy _settingProxy,
             HashService hashService)
         {
@@ -191,36 +190,28 @@ namespace Prestadito.Security.Application.Manager.Controller
             };
 
             //Email
-            
-            string contrasena = request.StrPassword;
-            //request.Contrasena = hashService.Encriptar(usuario.Contrasena);
-
-            List<string> correos = new List<string>();
-            correos.Add(request.StrEmail);
-            RecuperarClaveEmail message = new RecuperarClaveEmail();
-
-            message.CorreoCliente = request.StrEmail;
-            message.NombreCliente = request.StrEmail;
-            message.Contrasena = contrasena;
-            string templateKey = "templateKey_Create";
-            var obj = new EmailData<RecuperarClaveEmail>
+            EmailViewModel objEmail = new EmailViewModel
             {
-                EmailType = 1,
-                EmailList = correos,
-                Model = message,
-                HtmlTemplateName = Constantes.CrearUsuario
+                correo = request.StrEmail,
+                correocc = request.StrEmail,
+                correocco = request.StrEmail,
+                parametros = new Dictionary<string, string>
+            {
+                { "Cliente", "Bienvenido" }
+            },
+                asunto = "Te damos la bienvenida a Prestadito.PE",
+                plantilla = @"Content\RegistroUsuario.html",
+
+                correoUser = "prestaditope.peru@gmail.com",
+                correoPwd = "ntbapsuhcvyqtfqr",
+                displayName = "Prestadito PE",
+                host = "smtp.gmail.com",
+                puerto = "587"
             };
 
-            var parameters = new Dictionary<string, string>
-            {
-                { "Asunto", "Bienvenido" }
-            };
-
-            await _hashService.EnviarCorreoAsync(obj, message, templateKey, parameters);
-
+           bool correoEnviado = await _hashService.EnviarCorreoAsync(objEmail);
 
             //Fin Email
-
 
             LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
             responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);

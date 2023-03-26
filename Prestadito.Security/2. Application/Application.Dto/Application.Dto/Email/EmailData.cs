@@ -8,7 +8,7 @@ namespace Prestadito.Security.Application.Dto.Email
 {
     public class EmailData<T>
     {
-        public int EmailType { get; set; }                  //1: Email Bienvenida       2: Email Reset pwd          
+        public int EmailType { get; set; }                  //1: Email Bienvenida       2: Email Reset pwd
         public T Model { get; set; }
         public List<string> SubjectData { get; set; }
         public List<string> EmailList { get; set; }
