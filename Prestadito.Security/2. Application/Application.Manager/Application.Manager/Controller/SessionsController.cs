@@ -20,69 +20,12 @@ namespace Prestadito.Security.Application.Manager.Controller
         private readonly IJWTHelper _jwtHelper;
         private readonly ISettingProxy _settingProxy;
 
-        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper _jwtHelper, ISettingProxy _settingProxy)
+        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper jwtHelper, ISettingProxy settingProxy)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
-            this._jwtHelper = _jwtHelper;
-            this._settingProxy = _settingProxy;
-        }
-
-        public async ValueTask<IResult> DeleteSession(string id)
-        {
-            ResponseModel<SessionEntity> responseModel;
-
-            Expression<Func<SessionEntity, bool>> filter = f => f.Id == id;
-            var entity = await _sessionRepository.GetAsync(filter);
-            if (entity is null)
-            {
-                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not exist");
-                return Results.NotFound(responseModel);
-            }
-
-            var isSessionDeleted = await _sessionRepository.DeleteOneAsync(filter);
-            if (!isSessionDeleted)
-            {
-                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not deleted");
-                return Results.UnprocessableEntity(responseModel);
-            }
-
-            var SessionEntityItem = new SessionEntity
-            {
-                Id = entity.Id,
-                StrUserId = entity.StrUserId,
-                StrIP = entity.StrIP,
-                StrDeviceName = entity.StrDeviceName,
-                IntAttempts = entity.IntAttempts,
-                StrComment = entity.StrComment,
-                StrEnteredPasswordHash = entity.StrEnteredPasswordHash,
-                DteLogin = entity.DteLogin
-            };
-            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItem);
-            return Results.Json(responseModel);
-        }
-
-        public async ValueTask<IResult> GetAllSessions()
-        {
-            ResponseModel<SessionEntity> responseModel;
-
-            Expression<Func<SessionEntity, bool>> filter = f => true;
-            var entities = await _sessionRepository.GetAllAsync(filter);
-
-            var SessionEntityItems = entities.Select(u => new SessionEntity
-            {
-                Id = u.Id,
-                StrUserId = u.StrUserId,
-                StrIP = u.StrIP,
-                StrDeviceName = u.StrDeviceName,
-                IntAttempts = u.IntAttempts,
-                StrComment = u.StrComment,
-                StrEnteredPasswordHash = u.StrEnteredPasswordHash,
-                DteLogin = u.DteLogin
-            }).ToList();
-
-            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItems);
-            return Results.Json(responseModel);
+            _jwtHelper = jwtHelper;
+            _settingProxy = settingProxy;
         }
 
         public async ValueTask<IResult> Login(LoginRequest request, HttpContext httpContext)
@@ -180,6 +123,63 @@ namespace Prestadito.Security.Application.Manager.Controller
 
             LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
             responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> DeleteSession(string id)
+        {
+            ResponseModel<SessionEntity> responseModel;
+
+            Expression<Func<SessionEntity, bool>> filter = f => f.Id == id;
+            var entity = await _sessionRepository.GetAsync(filter);
+            if (entity is null)
+            {
+                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not exist");
+                return Results.NotFound(responseModel);
+            }
+
+            var isSessionDeleted = await _sessionRepository.DeleteOneAsync(filter);
+            if (!isSessionDeleted)
+            {
+                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not deleted");
+                return Results.UnprocessableEntity(responseModel);
+            }
+
+            var SessionEntityItem = new SessionEntity
+            {
+                Id = entity.Id,
+                StrUserId = entity.StrUserId,
+                StrIP = entity.StrIP,
+                StrDeviceName = entity.StrDeviceName,
+                IntAttempts = entity.IntAttempts,
+                StrComment = entity.StrComment,
+                StrEnteredPasswordHash = entity.StrEnteredPasswordHash,
+                DteLogin = entity.DteLogin
+            };
+            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItem);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> GetAllSessions()
+        {
+            ResponseModel<SessionEntity> responseModel;
+
+            Expression<Func<SessionEntity, bool>> filter = f => true;
+            var entities = await _sessionRepository.GetAllAsync(filter);
+
+            var SessionEntityItems = entities.Select(u => new SessionEntity
+            {
+                Id = u.Id,
+                StrUserId = u.StrUserId,
+                StrIP = u.StrIP,
+                StrDeviceName = u.StrDeviceName,
+                IntAttempts = u.IntAttempts,
+                StrComment = u.StrComment,
+                StrEnteredPasswordHash = u.StrEnteredPasswordHash,
+                DteLogin = u.DteLogin
+            }).ToList();
+
+            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItems);
             return Results.Json(responseModel);
         }
     }
