@@ -27,7 +27,7 @@ namespace Prestadito.Security.API
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Prestadito.Micro.Security.API",
+                    Title = "Test Deploy with main branch",
                     Description = "ASP.NET Core Web API Control Schedule System",
                     TermsOfService = new Uri("https://prestadito.pe/terms"),
                     Contact = new OpenApiContact

@@ -1,9 +1,4 @@
-﻿using FluentValidation;
-using Prestadito.Security.Application.Dto.Login;
-using Prestadito.Security.Application.Manager.Interfaces;
-using Prestadito.Security.Infrastructure.Data.Constants;
-
-namespace Prestadito.Security.API.Endpoints
+﻿namespace Prestadito.Security.API.Endpoints
 {
     public static class SessionEndpoints
     {
@@ -20,6 +15,7 @@ namespace Prestadito.Security.API.Endpoints
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
+
                     return await controller.Login(request, httpContext);
                 }).WithTags(ConstantAPI.Endpoint.Tag.SESSIONS);
 

@@ -1,15 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using Prestadito.Security.Application.Dto.Login;
-using Prestadito.Security.Application.Manager.Interfaces;
-using Prestadito.Security.Application.Manager.Utilities;
-using Prestadito.Security.Domain.MainModule.Entities;
-using Prestadito.Security.Infrastructure.Data.Constants;
-using Prestadito.Security.Infrastructure.Data.Interface;
-using Prestadito.Security.Infrastructure.Data.Utilities;
-using Prestadito.Security.Infrastructure.Proxies.Settings.DTO.Parameters;
-using Prestadito.Security.Infrastructure.Proxies.Settings.Interfaces;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Prestadito.Security.Application.Manager.Controller
 {
@@ -19,13 +8,16 @@ namespace Prestadito.Security.Application.Manager.Controller
         private readonly IUserRepository _userRepository;
         private readonly IJWTHelper _jwtHelper;
         private readonly ISettingProxy _settingProxy;
+        private readonly HashService _hashService;
 
-        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper jwtHelper, ISettingProxy settingProxy)
+
+        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper _jwtHelper, ISettingProxy _settingProxy, HashService hashService)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
-            _jwtHelper = jwtHelper;
-            _settingProxy = settingProxy;
+            _jwtHelper = _jwtHelper;
+            _settingProxy = _settingProxy;
+            _hashService = hashService;
         }
 
         public async ValueTask<IResult> Login(LoginRequest request, HttpContext httpContext)
@@ -101,11 +93,16 @@ namespace Prestadito.Security.Application.Manager.Controller
                 };
                 await _sessionRepository.InsertOneAsync(entitySessionLoginError);
 
+
+
+
+
                 if (entitySessionLoginError.IntAttempts >= maxAttempts)
                 {
                     responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
                     return Results.UnprocessableEntity(responseModel);
                 }
+
 
                 responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
                 return Results.UnprocessableEntity(responseModel);
@@ -120,6 +117,33 @@ namespace Prestadito.Security.Application.Manager.Controller
                 StrEmail = entityUser.StrEmail,
                 StrStatusId = entityUser.StrStatusId
             };
+
+            //Email
+
+            string contrasena = request.StrPassword;
+            //request.Contrasena = hashService.Encriptar(usuario.Contrasena);
+
+            List<string> correos = new List<string>();
+            correos.Add(request.StrEmail);
+            RecuperarClaveEmail message = new RecuperarClaveEmail();
+
+            message.CorreoCliente = request.StrEmail;
+            message.NombreCliente = request.StrEmail;
+            message.Contrasena = contrasena;
+            string templateKey = "templateKey_Create";
+            var obj = new EmailData<RecuperarClaveEmail>
+            {
+                EmailType = 2,
+                EmailList = correos,
+                Model = message,
+                HtmlTemplateName = Constantes.CrearUsuario
+            };
+
+            await _hashService.EnviarCorreoAsync(obj, message, templateKey);
+
+
+            //Fin Email
+
 
             LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
             responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);
