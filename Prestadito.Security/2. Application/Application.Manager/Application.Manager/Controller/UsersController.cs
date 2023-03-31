@@ -43,7 +43,6 @@ namespace Prestadito.Security.Application.Manager.Controller
                 BlnEmailValidated = false,
                 BlnLockByAttempts = false,
                 BlnCompleteInformation = false,
-                StrStatusId = ConstantSettings.Parameter.UserStatus.STATUS_ACTIVE,
                 BlnActive = true
             };
 

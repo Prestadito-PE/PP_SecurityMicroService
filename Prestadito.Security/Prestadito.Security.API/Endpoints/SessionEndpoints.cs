@@ -1,4 +1,9 @@
-﻿namespace Prestadito.Security.API.Endpoints
+﻿using FluentValidation;
+using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Infrastructure.Data.Constants;
+
+namespace Prestadito.Security.API.Endpoints
 {
     public static class SessionEndpoints
     {
