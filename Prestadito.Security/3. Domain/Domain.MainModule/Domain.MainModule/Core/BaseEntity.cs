@@ -13,3 +13,4 @@ namespace Prestadito.Security.Domain.MainModule.Core
         public bool BlnActive { get; set; } = true;
     }
 }
+    

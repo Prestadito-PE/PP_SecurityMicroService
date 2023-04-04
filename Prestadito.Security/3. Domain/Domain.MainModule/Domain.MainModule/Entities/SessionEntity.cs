@@ -14,7 +14,7 @@ namespace Prestadito.Security.Domain.MainModule.Entities
         [BsonElement("strDeviceName")]
         public string StrDeviceName { get; set; } = null!;
         [BsonElement("intAttempts")]
-        public int IntAttempts { get; set; }
+        public int IntAttempts { get; set; } = 0;
         [BsonElement("strComment")]
         public string StrComment { get; set; } = null!;
         [BsonElement("strEnteredDOI")]

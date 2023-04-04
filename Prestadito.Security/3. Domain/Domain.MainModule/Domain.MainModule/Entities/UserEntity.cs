@@ -6,8 +6,8 @@ namespace Prestadito.Security.Domain.MainModule.Entities
     [BsonIgnoreExtraElements]
     public class UserEntity : AuditEntity
     {
-        [BsonElement("strDOI")]
-        public string StrDOI { get; set; } = string.Empty;
+        [BsonElement("strEmail")]
+        public string StrEmail { get; set; } = string.Empty;
         [BsonElement("strPasswordHash")]
         public string StrPasswordHash { get; set; } = string.Empty;
         [BsonElement("strRolId")]
@@ -18,7 +18,5 @@ namespace Prestadito.Security.Domain.MainModule.Entities
         public bool BlnLockByAttempts { get; set; }
         [BsonElement("blnCompleteInformation")]
         public bool BlnCompleteInformation { get; set; }
-        [BsonElement("strEmail")]
-        public string StrEmail { get; set; } = string.Empty;
     }
 }

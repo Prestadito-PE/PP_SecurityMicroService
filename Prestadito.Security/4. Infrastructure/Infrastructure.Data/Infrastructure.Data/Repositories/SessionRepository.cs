@@ -38,9 +38,9 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
             return await result.ToListAsync();
         }
 
-        public async ValueTask<SessionEntity> GetSingleFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions)
+        public async ValueTask<SessionEntity> GetSingleFilterAndFindOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions)
         {
-            var result = await _context.Sessions.FindAsync(filter, findOptions);
+            var result = await _context.Sessions.FindAsync(filterDefinition, findOptions);
             return await result.SingleOrDefaultAsync();
         }
 
