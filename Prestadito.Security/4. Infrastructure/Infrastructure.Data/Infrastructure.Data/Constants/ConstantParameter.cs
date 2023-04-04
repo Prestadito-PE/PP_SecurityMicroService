@@ -2,16 +2,6 @@
 {
     public class ConstantSettings
     {
-        #region Parametria
-        public class Parameter
-        {
-            public class UserStatus
-            {
-                public const string STATUS_ACTIVE = "01";
-            }
-        }
-        #endregion
-
         #region Settings
         public class Settings
         {

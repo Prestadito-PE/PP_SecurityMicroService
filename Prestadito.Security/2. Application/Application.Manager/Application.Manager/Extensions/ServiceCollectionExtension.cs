@@ -9,6 +9,7 @@ using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Application.Manager.Controller;
 using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Application.Manager.Validators;
 using Prestadito.Security.Infrastructure.Data.Interface;
 using Prestadito.Security.Infrastructure.Data.Settings;

@@ -4,6 +4,7 @@ using Prestadito.Security.Domain.MainModule.Core;
 
 namespace Prestadito.Security.Domain.MainModule.Entities
 {
+    [BsonIgnoreExtraElements]
     public class SessionEntity : AuditEntity
     {
         [BsonElement("strUserId")]
@@ -13,9 +14,11 @@ namespace Prestadito.Security.Domain.MainModule.Entities
         [BsonElement("strDeviceName")]
         public string StrDeviceName { get; set; } = null!;
         [BsonElement("intAttempts")]
-        public int IntAttempts { get; set; }
+        public int IntAttempts { get; set; } = 0;
         [BsonElement("strComment")]
         public string StrComment { get; set; } = null!;
+        [BsonElement("strEnteredDOI")]
+        public string StrEnteredDOI { get; set; } = null!;
         [BsonElement("strEnteredPasswordHash")]
         public string StrEnteredPasswordHash { get; set; } = null!;
         [BsonElement("dteLogin")]

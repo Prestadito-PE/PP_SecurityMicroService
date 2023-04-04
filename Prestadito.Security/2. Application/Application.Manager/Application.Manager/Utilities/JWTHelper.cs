@@ -1,12 +1,13 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Manager.Interfaces;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Prestadito.Security.Infrastructure.Data.Utilities
+namespace Prestadito.Security.Application.Manager.Utilities
 {
     public class JWTHelper : IJWTHelper
     {
@@ -19,7 +20,6 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
 
         public LoginResponse GenerateToken(UserEntity entity)
         {
-            LoginResponse response;
             //Header 
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
@@ -29,7 +29,6 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
             var claims = new[]
             {
                 new Claim("id", entity.Id),
-                new Claim("strDOI", entity.StrDOI),
                 new Claim("strRolId", entity.StrRolId),
                 new Claim("strEmail", entity.StrEmail)
             };
@@ -45,16 +44,14 @@ namespace Prestadito.Security.Infrastructure.Data.Utilities
                DateTime.UtcNow.AddMinutes(jwtSettings.ExpirationInMinutes)
             );
 
-            var token = new JwtSecurityToken(header, payload);
-            string tkResponse = new JwtSecurityTokenHandler().WriteToken(token);
+            var jwtSecurityToken = new JwtSecurityToken(header, payload);
+            string token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
-            response = new LoginResponse
+            return new LoginResponse
             {
                 StrId = entity.Id,
-                StrToken = tkResponse
+                StrToken = token
             };
-
-            return response;
         }
     }
 }

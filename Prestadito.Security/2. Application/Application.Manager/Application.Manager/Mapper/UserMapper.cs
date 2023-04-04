@@ -3,21 +3,34 @@ using Prestadito.Security.Application.Dto.User.DisableUser;
 using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Domain.MainModule.Entities;
+using Prestadito.Security.Infrastructure.Data.Utilities;
 
 namespace Prestadito.Security.Application.Manager.Mapper
 {
     public static class UserMapper
     {
+        public static UserEntity MapToEntity(this CreateUserRequest request)
+        {
+            return new UserEntity
+            {
+                StrEmail = request.StrEmail,
+                StrPasswordHash = CryptoHelper.EncryptAES(request.StrPassword),
+                StrRolId = request.StrRolId,
+                BlnEmailValidated = false,
+                BlnLockByAttempts = false,
+                BlnCompleteInformation = false,
+                BlnActive = true
+            };
+        }
+
         public static GetUserByIdResponse MapGetUserById(this UserEntity entity)
         {
             return new GetUserByIdResponse
             {
                 StrId = entity.Id,
-                StrDOI = entity.StrDOI,
                 StrRolId = entity.StrRolId,
                 BlnEmailValidated = entity.BlnEmailValidated,
                 StrEmail = entity.StrEmail,
-                StrStatusId = entity.StrStatusId
             };
         }
 
@@ -28,9 +41,9 @@ namespace Prestadito.Security.Application.Manager.Mapper
                 StrId = entity.Id,
                 StrEmail = entity.StrEmail,
                 StrRolId = entity.StrRolId,
-                StrDOI = entity.StrDOI,
                 BlnEmailValidated = entity.BlnEmailValidated,
-                StrStatusId = entity.StrStatusId
+                BlnLockByAttempts = entity.BlnLockByAttempts,
+                BlnCompleteInformation = entity.BlnCompleteInformation
             };
         }
 
@@ -41,9 +54,7 @@ namespace Prestadito.Security.Application.Manager.Mapper
                 Id = entity.Id,
                 StrEmail = entity.StrEmail,
                 StrRolId = entity.StrRolId,
-                StrDOI = entity.StrDOI,
                 BlnEmailValidated = entity.BlnEmailValidated,
-                StrStatusId = entity.StrStatusId
             };
         }
 
@@ -52,11 +63,9 @@ namespace Prestadito.Security.Application.Manager.Mapper
             return new DisableUserResponse
             {
                 StrId = entity.Id,
-                StrDOI = entity.StrDOI,
                 StrRolId = entity.StrRolId,
                 BlnEmailValidated = entity.BlnEmailValidated,
                 StrEmail = entity.StrEmail,
-                StrStatusId = entity.StrStatusId
             };
         }
 
@@ -65,11 +74,9 @@ namespace Prestadito.Security.Application.Manager.Mapper
             return new DeleteUserResponse
             {
                 StrId = entity.Id,
-                StrDOI = entity.StrDOI,
                 StrRolId = entity.StrRolId,
                 BlnEmailValidated = entity.BlnEmailValidated,
                 StrEmail = entity.StrEmail,
-                StrStatusId = entity.StrStatusId
             };
         }
     }

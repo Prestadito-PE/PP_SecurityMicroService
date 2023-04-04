@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;
-using System.Linq.Expressions;
 
 namespace Prestadito.Security.Infrastructure.Data.Repositories
 {
@@ -14,15 +13,15 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
             _context = context;
         }
 
-        public async ValueTask<UserEntity> GetSingleAsync(Expression<Func<UserEntity, bool>> filter)
+        public async ValueTask<UserEntity> GetSingleAsync(FilterDefinition<UserEntity> filterDefinition)
         {
-            var result = await _context.Users.FindAsync(filter);
+            var result = await _context.Users.FindAsync(filterDefinition);
             return await result.SingleOrDefaultAsync();
         }
 
-        public async ValueTask<IEnumerable<UserEntity>> GetAsync(Expression<Func<UserEntity, bool>> filter)
+        public async ValueTask<IEnumerable<UserEntity>> GetAsync(FilterDefinition<UserEntity> filterDefinition)
         {
-            var result = await _context.Users.FindAsync(filter);
+            var result = await _context.Users.FindAsync(filterDefinition);
             return result.ToEnumerable();
         }
 
@@ -31,15 +30,15 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
             await _context.Users.InsertOneAsync(entity);
         }
 
-        public async ValueTask<bool> UpdateOneAsync(Expression<Func<UserEntity, bool>> filter, UpdateDefinition<UserEntity> updateDefinition)
+        public async ValueTask<bool> UpdateOneAsync(FilterDefinition<UserEntity> filterDefinition, UpdateDefinition<UserEntity> updateDefinition)
         {
-            var result = await _context.Users.UpdateOneAsync(filter, updateDefinition);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
+            var result = await _context.Users.UpdateOneAsync(filterDefinition, updateDefinition);
+            return result.IsAcknowledged && result.ModifiedCount == 1;
         }
 
-        public async ValueTask<bool> DeleteOneAsync(Expression<Func<UserEntity, bool>> filter)
+        public async ValueTask<bool> DeleteOneAsync(FilterDefinition<UserEntity> filterDefinition)
         {
-            var result = await _context.Users.DeleteOneAsync(filter);
+            var result = await _context.Users.DeleteOneAsync(filterDefinition);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
     }
