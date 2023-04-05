@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using Prestadito.Security.Application.Manager.QueryBuilder.FilterDefinition;
+using Prestadito.Security.Application.Manager.QueryBuilder.UpdateDefinition;
 using Prestadito.Security.Domain.MainModule.Entities;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder
@@ -15,8 +16,7 @@ namespace Prestadito.Security.Application.Manager.QueryBuilder
         public static Tuple<FilterDefinition<UserEntity>, UpdateDefinition<UserEntity>> UpdateUserLockAttemps(string userId)
         {
             var filter = UserFilterDefinition.FilterUserByUserId(userId);
-            var update = Builders<UserEntity>.Update
-                .Set(u => u.BlnLockByAttempts, true);
+            var update = UserUpdateDefinition.LockUserByAttempts();
 
             return Tuple.Create(filter, update);
         }
