@@ -15,10 +15,26 @@ namespace Prestadito.Security.Application.Manager.QueryBuilder
 
         public static Tuple<FilterDefinition<UserEntity>, UpdateDefinition<UserEntity>> UpdateUserLockAttemps(string userId)
         {
-            var filter = UserFilterDefinition.FilterUserByUserId(userId);
+            var filterDefinition = UserFilterDefinition.FindUserById(userId);
             var update = UserUpdateDefinition.LockUserByAttempts();
 
-            return Tuple.Create(filter, update);
+            return Tuple.Create(filterDefinition, update);
+        }
+
+        public static Tuple<FilterDefinition<UserEntity>, UpdateDefinition<UserEntity>> UnlockUserByAttemps(string userId)
+        {
+            var filterDefinition = UserFilterDefinition.FindUserById(userId);
+            var updateDefinition = UserUpdateDefinition.UnlockUserByAttemps();
+
+            return Tuple.Create(filterDefinition, updateDefinition);
+        }
+
+        public static Tuple<FilterDefinition<UserEntity>, UpdateDefinition<UserEntity>> UpdateUserDisable(string userId)
+        {
+            var filterDefinition = UserFilterDefinition.FindUserById(userId);
+            var updateDefinition = UserUpdateDefinition.Disable();
+
+            return Tuple.Create(filterDefinition, updateDefinition);
         }
 
         public static FilterDefinition<UserEntity> FindAllUsers()
@@ -33,10 +49,16 @@ namespace Prestadito.Security.Application.Manager.QueryBuilder
             return query;
         }
 
-        public static FilterDefinition<UserEntity> FindUserByUserId(string userId)
+        public static FilterDefinition<UserEntity> FindUserById(string userId)
         {
-            var query = UserFilterDefinition.FilterUserByUserId(userId);
+            var query = UserFilterDefinition.FindUserById(userId);
             return query;
+        }
+
+        public static UpdateDefinition<UserEntity> UpdateUser(UserEntity entity)
+        {
+            var updateDefinition = UserUpdateDefinition.UpdateUser(entity);
+            return updateDefinition;
         }
     }
 }

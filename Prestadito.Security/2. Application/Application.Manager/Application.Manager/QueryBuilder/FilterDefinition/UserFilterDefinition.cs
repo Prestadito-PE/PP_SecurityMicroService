@@ -5,7 +5,7 @@ namespace Prestadito.Security.Application.Manager.QueryBuilder.FilterDefinition
 {
     public class UserFilterDefinition
     {
-        public static FilterDefinition<UserEntity> FilterUserByUserId(string userId)
+        public static FilterDefinition<UserEntity> FindUserById(string userId)
         {
             var filter = Builders<UserEntity>.Filter.Eq(s => s.Id, userId);
             return filter;

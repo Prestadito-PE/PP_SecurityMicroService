@@ -36,10 +36,7 @@ namespace Prestadito.Security.Application.Manager.Validators
     {
         public UpdateUserValidator()
         {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
-
-            RuleFor(x => x.StrDOI)
+            RuleFor(x => x.StrId)
                 .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
 
             RuleFor(x => x.StrPassword)

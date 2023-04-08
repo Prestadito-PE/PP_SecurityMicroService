@@ -8,6 +8,9 @@
             public const string INCORRECT_CREDENTIALS = "Credenciales incorrectas";
             public const string USER_LOCKED_BY_MAX_ATTEMPS = "Usuario bloqueado por superar intentos máximos";
             public const string SESSION_FAILED_TO_CREATE = "Sesión no pudo ser creada";
+            public const string USER_RESTART_ATTEMPS_BY_UNLOCK = "Se reiniciaron los intentos por desbloqueo de administración";
+            public const string SESSION_NOT_FOUND = "Sesión no encontrado";
+            public const string SESSION_FAILED_TO_DELETE = "Sesión no pudo eliminar";
         }
         public class Users
         {

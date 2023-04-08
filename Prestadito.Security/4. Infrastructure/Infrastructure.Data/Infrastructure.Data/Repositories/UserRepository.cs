@@ -39,7 +39,7 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
         public async ValueTask<bool> DeleteOneAsync(FilterDefinition<UserEntity> filterDefinition)
         {
             var result = await _context.Users.DeleteOneAsync(filterDefinition);
-            return result.IsAcknowledged && result.DeletedCount > 0;
+            return result.IsAcknowledged && result.DeletedCount == 1;
         }
     }
 }

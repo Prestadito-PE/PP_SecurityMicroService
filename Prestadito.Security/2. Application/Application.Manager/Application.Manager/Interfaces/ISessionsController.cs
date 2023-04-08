@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Session.Login;
+using Prestadito.Security.Application.Dto.User.GetUserById;
 
 namespace Prestadito.Security.Application.Manager.Interfaces
 {
@@ -7,6 +8,6 @@ namespace Prestadito.Security.Application.Manager.Interfaces
     {
         ValueTask<IResult> Login(LoginRequest request, HttpContext httpContext);
         ValueTask<IResult> GetAllSessions();
-        ValueTask<IResult> DeleteSession(string id);
+        ValueTask<IResult> DeleteSession(DeleteSessionRequest request);
     }
 }

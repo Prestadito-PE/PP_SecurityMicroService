@@ -1,17 +1,16 @@
 ﻿using MongoDB.Driver;
 using Prestadito.Security.Domain.MainModule.Entities;
-using System.Linq.Expressions;
 
 namespace Prestadito.Security.Infrastructure.Data.Interface
 {
     public interface ISessionRepository
     {
-        ValueTask<List<SessionEntity>> GetAllAsync(Expression<Func<SessionEntity, bool>> filter);
-        ValueTask<SessionEntity> GetAsync(Expression<Func<SessionEntity, bool>> filter);
+        ValueTask<SessionEntity> GetSingleAsync(FilterDefinition<SessionEntity> filterDefinition);
+        ValueTask<SessionEntity> GetSingleWithOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions);
+        ValueTask<IEnumerable<SessionEntity>> GetAsync(FilterDefinition<SessionEntity> filterDefinition);
+        ValueTask<IEnumerable<SessionEntity>> GetWithOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions);
         ValueTask InsertOneAsync(SessionEntity entity);
-        ValueTask<bool> UpdateOneAsync(Expression<Func<SessionEntity, bool>> filter, UpdateDefinition<SessionEntity> updateDefinition);
-        ValueTask<bool> DeleteOneAsync(Expression<Func<SessionEntity, bool>> filter);
-        ValueTask<List<SessionEntity>> GetFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions);
-        ValueTask<SessionEntity> GetSingleFilterAndFindOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions);
+        ValueTask<bool> UpdateOneAsync(FilterDefinition<SessionEntity> filterDefinition, UpdateDefinition<SessionEntity> updateDefinition);
+        ValueTask<bool> DeleteOneAsync(FilterDefinition<SessionEntity> filterDefinition);
     }
 }
