@@ -7,12 +7,9 @@ namespace Prestadito.Security.Application.Manager.Utilities
     {
         public static void ParameterToValueInt(this ResponseProxyModel<ParameterModel>? parameter, ref int value)
         {
-            if (parameter is not null && !parameter.Error)
+            if (parameter is not null && !parameter.Error && int.TryParse(parameter.Item.StrValue, out int tempValue))
             {
-                if (int.TryParse(parameter.Item.StrValue, out int tempValue))
-                {
-                    value = tempValue;
-                }
+                value = tempValue;
             }
         }
     }
