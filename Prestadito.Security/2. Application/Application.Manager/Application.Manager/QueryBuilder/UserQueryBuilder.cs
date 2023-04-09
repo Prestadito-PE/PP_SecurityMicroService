@@ -5,7 +5,7 @@ using Prestadito.Security.Domain.MainModule.Entities;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder
 {
-    public class UserQueryBuilder
+    public static class UserQueryBuilder
     {
         public static FilterDefinition<UserEntity> FindUserByEmail(string email)
         {

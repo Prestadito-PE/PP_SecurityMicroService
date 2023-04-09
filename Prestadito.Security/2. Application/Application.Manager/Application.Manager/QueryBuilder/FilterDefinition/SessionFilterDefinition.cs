@@ -3,7 +3,7 @@ using Prestadito.Security.Domain.MainModule.Entities;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder.FilterDefinition
 {
-    public class SessionFilterDefinition
+    public static class SessionFilterDefinition
     {
         public static FilterDefinition<SessionEntity> FindSessionById(string sessionId)
         {

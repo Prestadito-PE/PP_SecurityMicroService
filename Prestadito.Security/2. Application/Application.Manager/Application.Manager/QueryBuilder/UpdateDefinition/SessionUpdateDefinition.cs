@@ -4,7 +4,7 @@ using Prestadito.Security.Infrastructure.Data.Constants;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder.UpdateDefinition
 {
-    public class SessionUpdateDefinition
+    public static class SessionUpdateDefinition
     {
         public static UpdateDefinition<SessionEntity> RestartAttemps()
         {

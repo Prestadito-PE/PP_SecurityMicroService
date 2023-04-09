@@ -3,7 +3,7 @@ using Prestadito.Security.Domain.MainModule.Entities;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder.FilterDefinition
 {
-    public class UserFilterDefinition
+    public static class UserFilterDefinition
     {
         public static FilterDefinition<UserEntity> FindUserById(string userId)
         {

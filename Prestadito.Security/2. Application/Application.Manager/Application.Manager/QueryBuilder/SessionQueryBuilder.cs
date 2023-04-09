@@ -6,7 +6,7 @@ using Prestadito.Security.Domain.MainModule.Entities;
 
 namespace Prestadito.Security.Application.Manager.QueryBuilder
 {
-    public class SessionQueryBuilder
+    public static class SessionQueryBuilder
     {
         public static FilterDefinition<SessionEntity> FindAllSessions()
         {
