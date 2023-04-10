@@ -3,6 +3,6 @@
     public class SettingEndpoints
     {
         public static readonly string SettingServiceUrl = "SettingServiceUrl";
-        public static readonly string GetParametersByCode = "api/interservices/parameters/by-code/{0}";
+        public static readonly string GetParametersByCodePath = "api/interservices/parameters/by-code/";
     }
 }

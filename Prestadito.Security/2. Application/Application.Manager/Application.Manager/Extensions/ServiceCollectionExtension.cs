@@ -2,17 +2,17 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Session.Login;
 using Prestadito.Security.Application.Dto.User.CreateUser;
 using Prestadito.Security.Application.Dto.User.DisableUser;
 using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Dto.User.UpdateUser;
 using Prestadito.Security.Application.Manager.Controller;
 using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Application.Manager.Validators;
 using Prestadito.Security.Infrastructure.Data.Interface;
 using Prestadito.Security.Infrastructure.Data.Settings;
-using Prestadito.Security.Infrastructure.Data.Utilities;
 
 namespace Prestadito.Security.Application.Manager.Extensions
 {
@@ -26,8 +26,9 @@ namespace Prestadito.Security.Application.Manager.Extensions
             services.AddScoped<IValidator<DisableUserRequest>, DisableUserValidator>();
             services.AddScoped<IValidator<DeleteUserRequest>, DeleteUserValidator>();
 
+            services.AddScoped<IValidator<DeleteSessionRequest>, DeleteSessionValidator>();
             services.AddScoped<IValidator<LoginRequest>, LoginValidator>();
-           
+
             return services;
         }
 
@@ -35,7 +36,6 @@ namespace Prestadito.Security.Application.Manager.Extensions
         {
             services.AddScoped<IUsersController, UsersController>();
             services.AddScoped<ISessionsController, SessionsController>();
-            services.AddTransient<HashService>();
             return services;
         }
 

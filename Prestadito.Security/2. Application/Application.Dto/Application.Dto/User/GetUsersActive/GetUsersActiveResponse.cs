@@ -1,6 +1,6 @@
-﻿namespace Prestadito.Security.Application.Dto.User.GetUserById
+﻿namespace Prestadito.Security.Application.Dto.User.GetUsersActive
 {
-    public class DeleteUserResponse
+    public class GetUsersActiveResponse
     {
         public string StrId { get; set; } = string.Empty;
         public string StrEmail { get; set; } = string.Empty;

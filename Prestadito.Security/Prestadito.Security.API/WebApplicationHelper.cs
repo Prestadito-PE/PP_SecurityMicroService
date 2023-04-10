@@ -2,7 +2,6 @@
 using Prestadito.Security.API.Endpoints;
 using Prestadito.Security.Application.Manager.Extensions;
 using Prestadito.Security.Infrastructure.Data.Extensions;
-using Prestadito.Security.Infrastructure.Data.Settings;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Extensions;
 
 namespace Prestadito.Security.API
@@ -20,7 +19,7 @@ namespace Prestadito.Security.API
             builder.Services.AddJWTSettings(configuration);
             builder.Services.AddSecurityControllers();
             builder.Services.AddValidators();
-
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -43,9 +42,6 @@ namespace Prestadito.Security.API
                     }
                 });
             });
-
-            builder.Services.AddHealthChecks()
-                .AddCheck<MongoDBHealthCheck>(nameof(MongoDBHealthCheck));
 
             return builder.Build();
         }

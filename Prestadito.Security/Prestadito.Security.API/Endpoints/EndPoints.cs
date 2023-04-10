@@ -5,7 +5,6 @@
         readonly static string basePath = "/api";
         public static WebApplication UseSecurityEndpoints(this WebApplication app)
         {
-            app.UseHealthEndpoints();
             app.UseUserEndpoints(basePath);
             app.UseSessionEndpoints(basePath);
 

@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
-using Prestadito.Security.Application.Dto.Email;
-using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Session.Login;
+using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Manager.Interfaces;
+using Prestadito.Security.Application.Manager.QueryBuilder;
 using Prestadito.Security.Application.Manager.Utilities;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Constants;
 using Prestadito.Security.Infrastructure.Data.Interface;
 using Prestadito.Security.Infrastructure.Data.Utilities;
-using Prestadito.Security.Infrastructure.Proxies.Settings.DTO.Parameters;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Interfaces;
-using System.Linq.Expressions;
 
 namespace Prestadito.Security.Application.Manager.Controller
 {
@@ -21,75 +20,16 @@ namespace Prestadito.Security.Application.Manager.Controller
         private readonly IUserRepository _userRepository;
         private readonly IJWTHelper _jwtHelper;
         private readonly ISettingProxy _settingProxy;
-        private readonly HashService _hashService;
+        private readonly IMapper _mapper;
 
 
-        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IJWTHelper _jwtHelper, ISettingProxy _settingProxy,
-            HashService hashService)
+        public SessionsController(ISessionRepository sessionRepository, IUserRepository userRepository, IMapper mapper, IJWTHelper jwtHelper, ISettingProxy settingProxy)
         {
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
-            this._jwtHelper = _jwtHelper;
-            this._settingProxy = _settingProxy;
-            this._hashService = hashService;
-         
-        }
-
-        public async ValueTask<IResult> DeleteSession(string id)
-        {
-            ResponseModel<SessionEntity> responseModel;
-
-            Expression<Func<SessionEntity, bool>> filter = f => f.Id == id;
-            var entity = await _sessionRepository.GetAsync(filter);
-            if (entity is null)
-            {
-                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not exist");
-                return Results.NotFound(responseModel);
-            }
-
-            var isSessionDeleted = await _sessionRepository.DeleteOneAsync(filter);
-            if (!isSessionDeleted)
-            {
-                responseModel = ResponseModel<SessionEntity>.GetResponse("Session not deleted");
-                return Results.UnprocessableEntity(responseModel);
-            }
-
-            var SessionEntityItem = new SessionEntity
-            {
-                Id = entity.Id,
-                StrUserId = entity.StrUserId,
-                StrIP = entity.StrIP,
-                StrDeviceName = entity.StrDeviceName,
-                IntAttempts = entity.IntAttempts,
-                StrComment = entity.StrComment,
-                StrEnteredPasswordHash = entity.StrEnteredPasswordHash,
-                DteLogin = entity.DteLogin
-            };
-            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItem);
-            return Results.Json(responseModel);
-        }
-
-        public async ValueTask<IResult> GetAllSessions()
-        {
-            ResponseModel<SessionEntity> responseModel;
-
-            Expression<Func<SessionEntity, bool>> filter = f => true;
-            var entities = await _sessionRepository.GetAllAsync(filter);
-
-            var SessionEntityItems = entities.Select(u => new SessionEntity
-            {
-                Id = u.Id,
-                StrUserId = u.StrUserId,
-                StrIP = u.StrIP,
-                StrDeviceName = u.StrDeviceName,
-                IntAttempts = u.IntAttempts,
-                StrComment = u.StrComment,
-                StrEnteredPasswordHash = u.StrEnteredPasswordHash,
-                DteLogin = u.DteLogin
-            }).ToList();
-
-            responseModel = ResponseModel<SessionEntity>.GetResponse(SessionEntityItems);
-            return Results.Json(responseModel);
+            _mapper = mapper;
+            _jwtHelper = jwtHelper;
+            _settingProxy = settingProxy;
         }
 
         public async ValueTask<IResult> Login(LoginRequest request, HttpContext httpContext)
@@ -100,125 +40,127 @@ namespace Prestadito.Security.Application.Manager.Controller
             var passwordHash = CryptoHelper.EncryptAES(request.StrPassword);
             string clientIP = httpContext.Connection.RemoteIpAddress is null ? "" : httpContext.Connection.RemoteIpAddress.ToString();
 
-            Expression<Func<UserEntity, bool>> filterUser = f => f.StrEmail == request.StrEmail;
-            var entityUser = await _userRepository.GetSingleAsync(filterUser);
+            var filterDefinitionUser = UserQueryBuilder.FindUserByEmail(request.StrEmail);
+            var entityUser = await _userRepository.GetSingleAsync(filterDefinitionUser);
             if (entityUser is null)
             {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
+                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.INCORRECT_CREDENTIALS);
                 return Results.NotFound(responseModel);
             }
 
             if (!entityUser.BlnActive)
             {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_NOT_ACTIVE);
+                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Users.USER_NOT_ACTIVE);
                 return Results.UnprocessableEntity(responseModel);
             }
 
             if (entityUser.BlnLockByAttempts)
             {
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
+                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
                 return Results.UnprocessableEntity(responseModel);
             }
 
             if (entityUser.StrPasswordHash != passwordHash)
             {
-                var parameter = await _settingProxy.GetParameterByCode(
-                    new GetParameterByCodeDTO
-                    {
-                        StrCode = ConstantAPI.MicroSetting.PARAMETER_MAX_ATTEMPS_CODE
-                    });
+                var parameter = await _settingProxy.GetParameterByCode(ConstantAPI.MicroSetting.PARAMETER_MAX_ATTEMPS_CODE);
+                SettingProxyUtility.ParameterToValueInt(parameter, ref maxAttempts);
 
-                if (parameter is not null && !parameter.Error)
-                {
-                    if (int.TryParse(parameter.Item.StrValue, out int tempValue))
-                    {
-                        maxAttempts = tempValue;
-                    }
-                }
-
-                #region CODE REFACTOR
-                Expression<Func<SessionEntity, bool>> filterSessions = f => f.StrUserId == entityUser.Id;
-                var sort = Builders<SessionEntity>.Sort.Descending(x => x.DteLogin);
-
-                var entitySession = await _sessionRepository.GetSingleFindOptionsAsync(filterSessions, null);
-                #endregion
+                var (filterDefinitionSession, findOptions) = SessionQueryBuilder.FindSessionLastSortByDateLogin(entityUser.Id);
+                var entitySession = await _sessionRepository.GetSingleWithOptionsAsync(filterDefinitionSession, findOptions);
                 if (entitySession is not null)
                 {
                     userLoginAttempts = entitySession.IntAttempts;
                 }
 
-                if (userLoginAttempts + 1 >= maxAttempts)
-                {
-                    entityUser.BlnLockByAttempts = true;
-                    await _userRepository.UpdateOneAsync(filterUser, null);
-                }
-
-                var entitySessionLoginError = new SessionEntity
+                SessionEntity entitySessionError = new()
                 {
                     StrUserId = entityUser.Id,
                     StrIP = clientIP,
                     StrDeviceName = request.StrDeviceName,
                     IntAttempts = userLoginAttempts + 1,
-                    StrComment = ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS,
+                    StrComment = (userLoginAttempts + 1 >= maxAttempts) ? ConstantMessages.Sessions.USER_LOCKED_BY_MAX_ATTEMPS : ConstantMessages.Sessions.INCORRECT_CREDENTIALS,
                     StrEnteredPasswordHash = passwordHash,
                     StrCreateUser = ConstantAPI.System.SYSTEM_USER
                 };
-                await _sessionRepository.InsertOneAsync(entitySessionLoginError);
 
+                await _sessionRepository.InsertOneAsync(entitySessionError);
 
-
-               
-
-                if (entitySessionLoginError.IntAttempts >= maxAttempts)
+                if (string.IsNullOrEmpty(entitySessionError.Id))
                 {
-                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.SESSION_FAILED_TO_CREATE);
                     return Results.UnprocessableEntity(responseModel);
                 }
 
+                if (entitySessionError.IntAttempts < maxAttempts)
+                {
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.INCORRECT_CREDENTIALS);
+                    return Results.UnprocessableEntity(responseModel);
+                }
 
-                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Errors.Sessions.INCORRECT_CREDENTIALS);
+                var (_, updateDefinitionUser) = UserQueryBuilder.UpdateUserLockAttemps(entityUser.Id);
+                var resultUpdate = await _userRepository.UpdateOneAsync(filterDefinitionUser, updateDefinitionUser);
+                if (!resultUpdate)
+                {
+                    responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Users.USER_FAILED_TO_UPDATE);
+                    return Results.UnprocessableEntity(responseModel);
+                }
+                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.USER_LOCKED_BY_MAX_ATTEMPS);
                 return Results.UnprocessableEntity(responseModel);
             }
 
-            UserEntity userMap = new()
+            SessionEntity entity = new()
             {
-                Id = entityUser.Id,
-                StrDOI = entityUser.StrDOI,
-                StrRolId = entityUser.StrRolId,
-                BlnEmailValidated = entityUser.BlnEmailValidated,
-                StrEmail = entityUser.StrEmail,
-                StrStatusId = entityUser.StrStatusId
+                StrUserId = entityUser.Id,
+                StrIP = clientIP,
+                StrDeviceName = request.StrDeviceName,
+                StrComment = ConstantMessages.Sessions.LOGIN_OK,
+                StrEnteredPasswordHash = passwordHash,
+                StrCreateUser = ConstantAPI.System.SYSTEM_USER
             };
 
-            //Email
-            
-            string contrasena = request.StrPassword;
-            //request.Contrasena = hashService.Encriptar(usuario.Contrasena);
-
-            List<string> correos = new List<string>();
-            correos.Add(request.StrEmail);
-            RecuperarClaveEmail message = new RecuperarClaveEmail();
-
-            message.CorreoCliente = request.StrEmail;
-            message.NombreCliente = request.StrEmail;
-            message.Contrasena = contrasena;
-            string templateKey = "templateKey_Create";
-            var obj = new EmailData<RecuperarClaveEmail>
+            await _sessionRepository.InsertOneAsync(entity);
+            if (string.IsNullOrEmpty(entity.Id))
             {
-                EmailType = 2,
-                EmailList = correos,
-                Model = message,
-                HtmlTemplateName = Constantes.CrearUsuario
-            };
-
-            await _hashService.EnviarCorreoAsync(obj, message, templateKey);
-
-
-            //Fin Email
-
-
-            LoginResponse loginResponse = _jwtHelper.GenerateToken(userMap);
+                responseModel = ResponseModel<LoginResponse>.GetResponse(ConstantMessages.Sessions.SESSION_FAILED_TO_CREATE);
+                return Results.UnprocessableEntity(responseModel);
+            }
+            LoginResponse loginResponse = _jwtHelper.GenerateToken(entityUser);
             responseModel = ResponseModel<LoginResponse>.GetResponse(loginResponse);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> DeleteSession(DeleteSessionRequest request)
+        {
+            ResponseModel<DeleteSessionResponse> responseModel;
+
+            var filterDefinition = SessionQueryBuilder.FindSessionById(request.StrId);
+            var entity = await _sessionRepository.GetAsync(filterDefinition);
+            if (entity is null)
+            {
+                responseModel = ResponseModel<DeleteSessionResponse>.GetResponse(ConstantMessages.Sessions.SESSION_NOT_FOUND);
+                return Results.NotFound(responseModel);
+            }
+
+            var isSessionDeleted = await _sessionRepository.DeleteOneAsync(filterDefinition);
+            if (!isSessionDeleted)
+            {
+                responseModel = ResponseModel<DeleteSessionResponse>.GetResponse(ConstantMessages.Sessions.SESSION_FAILED_TO_DELETE);
+                return Results.UnprocessableEntity(responseModel);
+            }
+
+            var mapperResponse = _mapper.Map<DeleteSessionResponse>(entity);
+            responseModel = ResponseModel<DeleteSessionResponse>.GetResponse(mapperResponse);
+            return Results.Json(responseModel);
+        }
+
+        public async ValueTask<IResult> GetAllSessions()
+        {
+            ResponseModel<SessionEntity> responseModel;
+
+            var filterDefinition = SessionQueryBuilder.FindAllSessions();
+            var entities = await _sessionRepository.GetAsync(filterDefinition);
+
+            responseModel = ResponseModel<SessionEntity>.GetResponse(entities.ToList());
             return Results.Json(responseModel);
         }
     }

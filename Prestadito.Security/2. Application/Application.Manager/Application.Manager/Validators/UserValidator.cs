@@ -12,7 +12,7 @@ namespace Prestadito.Security.Application.Manager.Validators
         public GetUserByIdValidator()
         {
             RuleFor(x => x.StrId)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
         }
     }
 
@@ -21,14 +21,14 @@ namespace Prestadito.Security.Application.Manager.Validators
         public CreateUserValidator()
         {
             RuleFor(x => x.StrEmail)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY)
-                .EmailAddress().WithMessage(ConstantMessages.Errors.Validator.EMAIL_NOT_VAlID);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY)
+                .EmailAddress().WithMessage(ConstantMessages.Validator.EMAIL_NOT_VAlID);
 
             RuleFor(x => x.StrPassword)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
 
             RuleFor(x => x.StrRolId)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
         }
     }
 
@@ -36,17 +36,14 @@ namespace Prestadito.Security.Application.Manager.Validators
     {
         public UpdateUserValidator()
         {
-            RuleFor(x => x.Id)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
-
-            RuleFor(x => x.StrDOI)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+            RuleFor(x => x.StrId)
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
 
             RuleFor(x => x.StrPassword)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
 
             RuleFor(x => x.StrRolId)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
         }
     }
 
@@ -55,7 +52,7 @@ namespace Prestadito.Security.Application.Manager.Validators
         public DisableUserValidator()
         {
             RuleFor(x => x.StrId)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
         }
     }
 
@@ -64,7 +61,7 @@ namespace Prestadito.Security.Application.Manager.Validators
         public DeleteUserValidator()
         {
             RuleFor(x => x.StrId)
-                .NotEmpty().WithMessage(ConstantMessages.Errors.Validator.PROPERTY_NAME_IS_EMPTY);
+                .NotEmpty().WithMessage(ConstantMessages.Validator.PROPERTY_NAME_IS_EMPTY);
         }
     }
 }

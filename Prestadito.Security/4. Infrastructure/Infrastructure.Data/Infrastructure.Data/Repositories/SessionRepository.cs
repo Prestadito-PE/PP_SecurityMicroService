@@ -1,7 +1,6 @@
 ﻿using MongoDB.Driver;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;
-using System.Linq.Expressions;
 
 namespace Prestadito.Security.Infrastructure.Data.Repositories
 {
@@ -14,34 +13,28 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
             _context = context;
         }
 
-        public async ValueTask<bool> DeleteOneAsync(Expression<Func<SessionEntity, bool>> filter)
+        public async ValueTask<SessionEntity> GetSingleAsync(FilterDefinition<SessionEntity> filterDefinition)
         {
-            var result = await _context.Sessions.DeleteOneAsync(filter);
-            return result.IsAcknowledged;
-        }
-
-        public async ValueTask<List<SessionEntity>> GetAllAsync(Expression<Func<SessionEntity, bool>> filter)
-        {
-            var result = await _context.Sessions.FindAsync(filter);
-            return await result.ToListAsync();
-        }
-
-        public async ValueTask<SessionEntity> GetAsync(Expression<Func<SessionEntity, bool>> filter)
-        {
-            var result = await _context.Sessions.FindAsync(filter);
+            var result = await _context.Sessions.FindAsync(filterDefinition);
             return await result.SingleOrDefaultAsync();
         }
 
-        public async ValueTask<List<SessionEntity>> GetFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions)
+        public async ValueTask<SessionEntity> GetSingleWithOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions)
         {
-            var result = await _context.Sessions.FindAsync(filter, findOptions);
-            return await result.ToListAsync();
+            var result = await _context.Sessions.FindAsync(filterDefinition, findOptions);
+            return await result.SingleOrDefaultAsync();
         }
 
-        public async ValueTask<SessionEntity> GetSingleFindOptionsAsync(Expression<Func<SessionEntity, bool>> filter, FindOptions<SessionEntity, SessionEntity> findOptions)
+        public async ValueTask<IEnumerable<SessionEntity>> GetAsync(FilterDefinition<SessionEntity> filterDefinition)
         {
-            var result = await _context.Sessions.FindAsync(filter, findOptions);
-            return await result.SingleOrDefaultAsync();
+            var result = await _context.Sessions.FindAsync(filterDefinition);
+            return result.ToEnumerable();
+        }
+
+        public async ValueTask<IEnumerable<SessionEntity>> GetWithOptionsAsync(FilterDefinition<SessionEntity> filterDefinition, FindOptions<SessionEntity, SessionEntity> findOptions)
+        {
+            var result = await _context.Sessions.FindAsync(filterDefinition, findOptions);
+            return result.ToEnumerable();
         }
 
         public async ValueTask InsertOneAsync(SessionEntity entity)
@@ -49,9 +42,15 @@ namespace Prestadito.Security.Infrastructure.Data.Repositories
             await _context.Sessions.InsertOneAsync(entity);
         }
 
-        public async ValueTask<bool> UpdateOneAsync(Expression<Func<SessionEntity, bool>> filter, UpdateDefinition<SessionEntity> updateDefinition)
+        public async ValueTask<bool> UpdateOneAsync(FilterDefinition<SessionEntity> filterDefinition, UpdateDefinition<SessionEntity> updateDefinition)
         {
-            var result = await _context.Sessions.UpdateOneAsync(filter, updateDefinition);
+            var result = await _context.Sessions.UpdateOneAsync(filterDefinition, updateDefinition);
+            return result.IsAcknowledged;
+        }
+
+        public async ValueTask<bool> DeleteOneAsync(FilterDefinition<SessionEntity> filterDefinition)
+        {
+            var result = await _context.Sessions.DeleteOneAsync(filterDefinition);
             return result.IsAcknowledged;
         }
     }
