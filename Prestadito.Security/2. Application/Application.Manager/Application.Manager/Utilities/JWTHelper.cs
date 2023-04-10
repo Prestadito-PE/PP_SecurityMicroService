@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Session.Login;
 using Prestadito.Security.Application.Manager.Interfaces;
 using Prestadito.Security.Domain.MainModule.Entities;
 using Prestadito.Security.Infrastructure.Data.Interface;

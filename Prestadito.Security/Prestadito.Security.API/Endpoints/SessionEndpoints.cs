@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
-using Prestadito.Security.Application.Dto.Login;
+using Prestadito.Security.Application.Dto.Session.Login;
+using Prestadito.Security.Application.Dto.User.GetUserById;
 using Prestadito.Security.Application.Manager.Interfaces;
 using Prestadito.Security.Infrastructure.Data.Constants;
 
@@ -31,9 +32,15 @@ namespace Prestadito.Security.API.Endpoints
                 }).WithTags(ConstantAPI.Endpoint.Tag.SESSIONS);
 
             app.MapDelete(path + "/delete/{id}",
-                async (string id, ISessionsController controller) =>
+                async (IValidator<DeleteSessionRequest> validator, string id, ISessionsController controller) =>
                 {
-                    return await controller.DeleteSession(id);
+                    var request = new DeleteSessionRequest { StrId = id };
+                    var validationResult = await validator.ValidateAsync(request);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+                    return await controller.DeleteSession(request);
                 }).WithTags(ConstantAPI.Endpoint.Tag.SESSIONS);
 
             return app;

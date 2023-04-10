@@ -1,4 +1,4 @@
-﻿namespace Prestadito.Security.Application.Dto.Login
+﻿namespace Prestadito.Security.Application.Dto.Session.Login
 {
     public class LoginResponse
     {

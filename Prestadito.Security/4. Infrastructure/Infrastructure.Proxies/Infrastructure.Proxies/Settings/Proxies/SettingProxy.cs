@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Prestadito.Security.Infrastructure.Proxies.Settings.DTO.Parameters;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Endpoints;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Interfaces;
 using Prestadito.Security.Infrastructure.Proxies.Settings.Models;
@@ -19,11 +18,11 @@ namespace Prestadito.Security.Infrastructure.Proxies.Settings.Proxies
             configuration = _configuration;
         }
 
-        public async ValueTask<ResponseProxyModel<ParameterModel>?> GetParameterByCode(GetParameterByCodeDTO dto)
+        public async ValueTask<ResponseProxyModel<ParameterModel>?> GetParameterByCode(string parameterCode)
         {
             try
             {
-                var path = BuildPath(string.Format(SettingEndpoints.GetParametersByCode, dto.StrCode));
+                var path = BuildPath($"{SettingEndpoints.GetParametersByCodePath}{parameterCode}");
                 var response = await httpClient.GetAsync(path);
 
                 var responseModel = await response.Content.ReadFromJsonAsync<ResponseProxyModel<ParameterModel>>();
