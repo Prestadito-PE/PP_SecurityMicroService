@@ -16,14 +16,14 @@ namespace Prestadito.Security.API.Endpoints
             string path = $"{basePath}/{collection}";
 
             app.MapPost(path,
-                async (IValidator<CreateUserRequest> validator, CreateUserRequest dto, IUsersController controller) =>
+                async (IValidator<CreateUserRequest> validator, CreateUserRequest request, IUsersController controller) =>
                 {
-                    var validationResult = await validator.ValidateAsync(dto);
+                    var validationResult = await validator.ValidateAsync(request);
                     if (!validationResult.IsValid)
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
-                    return await controller.CreateUser(dto, $"~{path}");
+                    return await controller.CreateUser(request, $"~{path}");
                 }).WithTags(ConstantAPI.Endpoint.Tag.USERS);
 
             app.MapGet(path + "/all",
