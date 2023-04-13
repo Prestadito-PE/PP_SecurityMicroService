@@ -26,7 +26,7 @@ namespace Prestadito.Security.API.Endpoints
                 }).WithTags(ConstantAPI.Endpoint.Tag.SESSIONS);
 
             app.MapGet(path + "/all",
-                async (ISessionsController controller, HttpContext httpContext) =>
+                async (ISessionsController controller) =>
                 {
                     return await controller.GetAllSessions();
                 }).WithTags(ConstantAPI.Endpoint.Tag.SESSIONS);
